@@ -1,0 +1,76 @@
+/* static/css/styles.css */
+
+body {
+    font-family: 'Arial', 'Times New Roman', Times, serif;
+    /* background-color: #0a5c36; Poker table green */
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+#game-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: #747474;
+    padding: 20px;
+    /* border-radius: 10px; */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.card {
+    width: 80px;
+    height: 120px;
+    background-color: white;
+    border-radius: 5px;
+    margin: 5px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: black;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.player {
+    background-color: #1a1a2e;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #4cc9f0;
+}
+
+#community-cards {
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+#actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #ececec;
+    border: none;
+    border-radius: 2px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #ff9292;
+}
+
+input {
+    padding: 10px;
+    border-radius: 2px;
+    border: none;
+    width: 80px;
+}

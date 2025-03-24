@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poker Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='/js/index.js') }}"></script>
+</head>
+<body>
+    <div id="game-container">
+        <div id="room-info">
+            <h2>Game: <span id="game-id-display"></span></h2>
+            <h2>Player: <span id="player-name-display"></span></h2>
+        </div>
+        <div id="community-cards"></div>
+        <div id="players"></div>
+        <h1>POKER BAKER</h1>
+        <div id="actions">
+            <button id="fold-btn">Fold</button>
+            <button id="check-btn">Check</button>
+            <input type="number" id="bet-amount" min="0">
+            <button id="bet-btn">Bet</button>
+        </div>
+    </div>
+</body>
+</html>
