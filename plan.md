@@ -8,7 +8,7 @@
         - Client renderiing of all available rooms with refresh (done)
         - Server route for creating room (done)
     - Room
-        - Client rendering of room: players, room_id
+        - Client rendering of room: players, room_id (done)
         - Server route for starting game
         - Client rendering of game state
         - Server routes for in game actions

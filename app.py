@@ -53,23 +53,33 @@ def join_game(game_id):
         return redirect(url_for('index'))
     return render_template('game.html', game_id=game_id)
 
+# TODO: fix disconnect and connect (more that 2 players in lobby)
+
 
 @socketio.on('join')
 def on_join(data):
     game_id = data.get('game_id')
     assert game_id, 'no game_id'
+    if game_id not in games:
+        print(f'{game_id} not found in games')
+        return redirect(url_for('index'))
+
     assert game_id in games, f'game {game_id} inaccesible'
+    game = games[game_id]
 
     player_name = data.get('player_name')
-    assert player_name, 'player_name'
+    assert player_name, 'no player_name'
 
     stack = data.get('stack', 200) 
     assert stack >= 0, 'stack cant be negative'
 
-    join_game(game_id)
-    games[game_id].new_player(player_name, stack)
+    join_room(game_id)
+    game.new_player(player_name, stack)
     emit('message', f'{player_name} has joined the game', room=game_id)
-    emit('update_players', games[game_id].players, room=game_id)
+    # player_states = list(map(lambda p: p.state(), game.players))
+    player_states = [{'name': player.name, 'stack': player.stack} for player in game.players] 
+    print('player states:', player_states)
+    emit('players_update', player_states, room=game_id)
 
 
 @socketio.on('start_game')
