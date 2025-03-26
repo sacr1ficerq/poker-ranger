@@ -95,10 +95,12 @@ def on_start(data):
 
     game = games[game_id]
 
-    assert game.n_players >= min_players, 'not enough players to start the game'
+    assert len(game.players) >= min_players, 'not enough players to start the game'
 
     game.start_game()
-    emit('game_started', game.state(player_name), room=game_id)
+    # emit('game_started', game.state(player_name), room=game_id)
+    print(game.state(player_name))
+    emit('game_update', game.state(player_name), room=game_id)
 
 
 # In game actions

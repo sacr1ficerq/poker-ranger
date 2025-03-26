@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
         hero_name: document.getElementById('hero-name'),
         villain_name: document.getElementById('villain-name'),
 
+        start_game_btn: document.getElementById('start-game'),
+
         actions: document.getElementById('actions'),
+        community_cards: document.getElementById('community-cards'),
     
         bet_btn: document.getElementById('bet-btn'),
         bet_amount: document.getElementById('bet-amount'),
@@ -28,8 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const path_segments = window.location.pathname.split('/');
     const game_id = path_segments[path_segments.length - 1];
 
+    let game_state = {}
     // hide actions before game starts
     elements.actions.classList.add('hidden');
+    elements.start_game_btn.classList.add('hidden');
 
     console.log("Game ID:", game_id);
     let player_name = 'Anonimous'
@@ -77,18 +82,59 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Hero bets: ", amount)
         socket.emit('bet', { "game_id": game_id, "amount": amount, "player_name": player_name});
     });
+
+    
+    elements.start_game_btn.addEventListener('click', () => {
+        console.log("Game starts")
+        socket.emit('start_game', {'game_id': game_id, 'player_name': player_name})
+    });
     
     function update_game_ui(game_state) {
         console.log('Updating game UI...')
         console.log('game state:', game_state)
         // Your UI update logic here
+        // Inside update_game_ui()
+
+        // Inside update_game_ui()
+        const hero = game_state.players.find(p => p.name === player_name);
+        if (hero) {
+            // Update hero's cards
+            elements.hero_stack.textContent = hero.stack;
+            elements.hero.querySelectorAll('.player-card').forEach((card, i) => {
+                card.textContent = hero.cards[i] || '';
+            });
+            // Highlight if acting
+            elements.hero.classList.toggle('acting', hero.is_acting);
+        }
+
+        const villain = game_state.players.find(p => p.name !== player_name);
+        if (villain) {
+          // Hide villain's cards (only show count if all-in)
+          elements.villain_stack.textContent = villain.stack;
+          elements.villain.querySelector('.player-card').textContent = 
+            villain.all_in ? 'ALL IN' : '';
+          elements.villain.classList.toggle('folded', villain.folded);
+        }
+
+        // Inside update_game_ui()
+        document.getElementById('pot-amount').textContent = game_state.round.pot;
+        // Disable buttons if not your turn
+        elements.actions.classList.toggle('opacity-50', !hero?.is_acting);
+        
+        return
+        // Add board to game_state
+        community_cards.innerHTML = game_state.round.board
+        .map(card => `<div class="community-card">${card}</div>`)
+        .join('');
     }
 
     function update_players(players_state) {
         console.log('Updating players...')
         console.log('players:', players_state)
+        if (players_state.length >= 2) {
+            elements.start_game_btn.classList.remove('hidden');
+        }
         players_state.forEach(player => {
-            // Find opponent (assuming player_name is your client's name)
             if (player.name === player_name) {
               elements.hero_stack.textContent = player.stack;
               elements.hero_name.textContent = player.name;

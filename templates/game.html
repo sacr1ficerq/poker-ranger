@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .poker-table {
-            background: #0b6d3d;
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
         }
         .player-card {
@@ -18,6 +17,26 @@
         .player-area {
             z-index: 2;
             position: relative;
+        }
+
+        /* Add to <style> section */
+        .folded {
+        opacity: 0.5;
+        filter: grayscale(1);
+        }
+
+        .acting {
+        border: 2px solid #f59e0b; /* Highlight border */
+        }
+
+        .dealer-button {
+        width: 20px;
+        height: 20px;
+        background: gold;
+        border-radius: 50%;
+        position: absolute;
+        top: -10px;
+        left: -10px;
         }
 
     </style>
@@ -66,11 +85,16 @@
             </div>
 
             <!-- Poker Table -->
-            <div class="poker-table rounded-full p-8 relative h-64">
+            <div class="poker-table rounded-full p-8 relative h-64 bg-green-800">
                 <!-- Community Cards -->
                 <div id="community-cards" class="flex justify-center space-x-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <!-- Cards will be inserted here -->
+                     cards here
                 </div>
+                <div id="pot-display" class="player-area text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-8">
+                    Pot: <span id="pot-amount">0</span>
+                  </div>
+                  <div id="dealer-button" class="bg-yellow-600 rounded-full w-6 h-6 text-center border-10px player-area text-white absolute top-1/2 left-1/2 mt-14 mr-24">D</div>
             </div>
 
             <!-- You -->
@@ -95,6 +119,9 @@
                 <input type="number" id="bet-amount" class="w-36 px-4 py-2 border rounded-xl" placeholder="Amount">
                 <button id="bet-btn" class="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition">Bet</button>
             </div>
+        </div>
+        <div class="flex justify-center mt-24">
+            <button id="start-game" class="bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition">Start Game</button>
         </div>
     </div>
 </body>

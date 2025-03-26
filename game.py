@@ -27,3 +27,4 @@ class Game:
 
     def start_game(self):
         print('Game starts!')
+        self.table.new_round()
