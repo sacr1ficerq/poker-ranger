@@ -1,27 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Poker Game</title>
+    <title>Poker Baker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='/js/index.js') }}"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .poker-table {
+            background: #0b6d3d;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .player-card {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .player-area {
+            z-index: 2;
+            position: relative;
+        }
+
+    </style>
 </head>
-<body>
-    <div id="game-container">
-        <div id="room-info">
-            <h2>Game: <span id="game-id-display"></span></h2>
-            <h2>Player: <span id="player-name-display"></span></h2>
+<body class="bg-gray-100 h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">POKER BAKER</h1>
+            <div class="flex justify-center space-x-4 text-sm text-gray-600">
+                <p>Game ID: <span id="game-id-display" class="font-mono">None</span></p>
+                <p>Player: <span id="player-name-display" class="font-mono">None</span></p>
+            </div>
         </div>
-        <div id="community-cards"></div>
-        <div id="players"></div>
-        <h1>POKER BAKER</h1>
-        <div id="actions">
-            <button id="fold-btn">Fold</button>
-            <button id="check-btn">Check</button>
-            <input type="number" id="bet-amount" min="0">
-            <button id="bet-btn">Bet</button>
+
+        <div class="relative max-w-2xl mx-auto mb-8 mt-20">
+            <!-- Top Player -->
+            <div id="player-top" class="player-area absolute -top-16 left-1/2 transform -translate-x-1/2 text-center">
+                <div class="bg-white rounded-lg p-3 shadow-md">
+                    <div class="text-xs text-gray-600">Opponent</div>
+                    <div class="flex space-x-2 mt-1">
+                        <div class="player-card w-8 h-12 rounded"></div>
+                        <div class="player-card w-8 h-12 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Poker Table -->
+            <div class="poker-table rounded-full p-8 relative h-64">
+                <!-- Community Cards -->
+                <div id="community-cards" class="flex justify-center space-x-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <!-- Cards will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Bottom Player -->
+            <div id="player-bottom" class="player-area absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
+                <div class="bg-white rounded-lg p-3 shadow-md">
+                    <div class="text-xs text-gray-600">You</div>
+                    <div class="flex space-x-2 mt-1">
+                        <div class="player-card w-8 h-12 rounded"></div>
+                        <div class="player-card w-8 h-12 rounded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div id="actions" class="flex justify-center space-x-4 mt-20">
+            <button id="fold-btn" class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 transition">Fold</button>
+            <button id="check-btn" class="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition">Check</button>
+            <div class="flex space-x-2">
+                <input type="number" id="bet-amount" class="w-20 px-3 py-2 border rounded" placeholder="Amount">
+                <button id="bet-btn" class="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 transition">Bet</button>
+            </div>
         </div>
     </div>
 </body>
-</html>

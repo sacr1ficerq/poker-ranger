@@ -1,8 +1,8 @@
-from poker_game import Table, Deck, Player
+import pokergame
 
 class Game:
     def __init__(self, id):
-        self.table = Table(sb=1, bb=2)
+        self.table = pokergame.Table(sb=1, bb=2)
         self.id = id
         self.players = []
         print(f'Game {id} created!')
@@ -18,7 +18,7 @@ class Game:
 
     def new_player(self, player_name, stack):
         print(f'New player \'{player_name}\' buys in for {stack}')
-        player = Player(player_name, stack, self.table)
+        player = pokergame.Player(player_name, stack, self.table)
         self.table.add_player(player)
     
     def state(self, player_name):

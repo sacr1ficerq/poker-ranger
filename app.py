@@ -2,12 +2,23 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from game import Game
-import random
 
-app = Flask(__name__, static_folder='static', static_url_path='/static')
-socketio = SocketIO(app)
+import uuid
 
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# In-memory storage for games
 games = {}
+# TODO: store players and allow joining game with username
+
+def generate_id():
+    # Generate unique ID for the game
+    game_id = str(uuid.uuid4())[:8]
+    if game_id in games:
+        return generate_id()
+    return game_id
+
 
 @app.route('/')
 def index():
@@ -15,7 +26,12 @@ def index():
 
 @app.route('/create_game')
 def create_game():
-    game_id = str(random.randint(1000, 9999))
+    # username = data.get('username', 'unknown')
+    # assert username != 'unknown', 'user unknown'
+
+    # TODO: create game as logged in player with username and game admin capabilities
+    game_id = generate_id()
+
     games[game_id] = Game(game_id)
     return redirect(url_for('join_game', game_id=game_id))
 
@@ -29,39 +45,57 @@ def join_game(game_id):
 
 @socketio.on('join')
 def on_join(data):
-    game_id = data['game_id']
-    player_name = data['player']
+    game_id = data.get('game_id')
+    player_name = data.get('player_name')
+    stack = 200 # TODO: different starting stack
 
-    if game_id in games:
-        join_room(game_id)
-        games[game_id].new_player(player_name, 200)
-        emit('message', f'{player_name} has joined the game', room=game_id)
-        emit('update_players', games[game_id].players, room=game_id)
+    assert game_id, 'no game_id'
+    assert player_name, 'player_name'
+
+    assert game_id in games, 'game inaccesible'
+
+    join_game(game_id)
+    games[game_id].new_player(player_name, stack)
+    emit('message', f'{player_name} has joined the game', room=game_id)
+    emit('update_players', games[game_id].players, room=game_id)
 
 
 @socketio.on('start_game')
 def on_start(data):
-    game_id = data['game_id']
-    player_name = data['player']
-    if game_id in games and len(games[game_id]['players']) >= 2:
-        # games[game_id]['state'] = 'preflop'
-        # Initialize deck, deal cards, etc.
-        games[game_id].start_game()
-        emit('game_started', games[game_id].state(player_name), room=game_id)
+    game_id = data.get('game_id')
+    player_name = data,get('player_name')
+
+    assert game_id, 'no game_id'
+    assert player_name, 'no player_name'
+
+    min_players = 2
+
+    assert game_id in games
+    game = games[game_id]
+
+    assert game.n_players >= min_players
+
+    game.start_game()
+    emit('game_started', game.state(player_name), room=game_id)
 
 
 @socketio.on('bet')
 def on_bet(data):
-    game_id = data['game_id']
-    amount = data['amount']
-    player_name = data['player']
+    game_id = data.get('game_id')
+    player_name = data.get('player_name')
+    amount = data.get('amount')
+
+    assert game_id, 'no game_id'
+    assert player_name, 'no player_name'
+    assert amount, 'no bet amount'
+
+    assert game_id in games
 
     game = games[game_id]
-    # Update game state 
-    game.bet(player_name, amount)
 
-    emit('game_update', games[game_id].state(player_name), room=game_id)
+    game.bet(player_name, amount)
+    emit('game_update', game.state(player_name), room=game_id)
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0')
