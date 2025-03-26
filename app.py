@@ -25,6 +25,14 @@ def index():
     return render_template('index.html')
 
 # interactions with server before game starts
+@socketio.on('request_games')
+def send_available_games():
+    players = []
+    for game in games.values():
+        players.append(len(game.players))
+    emit('available_games', {'games': list(games.keys()), 'players': players})
+
+
 @app.route('/create_game')
 def create_game():
     # username = data.get('username', 'unknown')
@@ -40,8 +48,8 @@ def create_game():
 
 @app.route('/game/<game_id>')
 def join_game(game_id):
-    print(f'{game_id} not found in games')
     if game_id not in games:
+        print(f'{game_id} not found in games')
         return redirect(url_for('index'))
     return render_template('game.html', game_id=game_id)
 
@@ -50,12 +58,12 @@ def join_game(game_id):
 def on_join(data):
     game_id = data.get('game_id')
     assert game_id, 'no game_id'
-    assert game_id in games, 'game inaccesible'
+    assert game_id in games, f'game {game_id} inaccesible'
 
     player_name = data.get('player_name')
     assert player_name, 'player_name'
 
-    stack = data.get('player_name', 200) 
+    stack = data.get('stack', 200) 
     assert stack >= 0, 'stack cant be negative'
 
     join_game(game_id)
@@ -95,7 +103,7 @@ def on_bet(data):
 
     amount = data.get('amount')
     assert amount, 'no bet amount'
-    assert amout >= 0, 'amount cant be nagative'
+    assert amount >= 0, 'amount cant be nagative'
 
 
     game = games[game_id]

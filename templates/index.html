@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poker Lobby</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='/js/lobby.js') }}"></script>
     <style>
         .lobby-card:hover {
@@ -28,7 +29,8 @@
                 <div>Game ID</div>
                 <div>Players</div>
                 <div>Status</div>
-                <div>Action</div>
+                <!-- <div>Action</div> -->
+                <div><button id="refresh-btn" class="text-white border rounded px-2 bg-blue-500">Refresh</button></div>
             </div>
 
             <!-- Lobby Items -->

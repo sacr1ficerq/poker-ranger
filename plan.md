@@ -3,9 +3,9 @@
 ## Client + Server
 
 1. Basic Poker
-    - Lobby
-        - Server route for getting all rooms
-        - Client renderiing of all available rooms with refresh
+    - Lobby (done)
+        - Server route for getting all rooms (done)
+        - Client renderiing of all available rooms with refresh (done)
         - Server route for creating room (done)
     - Room
         - Client rendering of room: players, room_id

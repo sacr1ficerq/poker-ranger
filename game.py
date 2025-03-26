@@ -19,6 +19,7 @@ class Game:
     def new_player(self, player_name, stack):
         print(f'New player \'{player_name}\' buys in for {stack}')
         player = pokergame.Player(player_name, stack, self.table)
+        self.players.append(player)
         self.table.add_player(player)
     
     def state(self, player_name):
