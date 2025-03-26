@@ -8,8 +8,8 @@ import uuid
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# In-memory storage for games
-games = {}
+# In-memory storage for games TODO: move this logic to database
+games = {} 
 # TODO: store players and allow joining game with username
 
 def generate_id():
@@ -24,12 +24,14 @@ def generate_id():
 def index():
     return render_template('index.html')
 
+# interactions with server before game starts
 @app.route('/create_game')
 def create_game():
     # username = data.get('username', 'unknown')
     # assert username != 'unknown', 'user unknown'
 
     # TODO: create game as logged in player with username and game admin capabilities
+    # TODO: create games with different stacksize/blinds/etc.
     game_id = generate_id()
 
     games[game_id] = Game(game_id)
@@ -38,6 +40,7 @@ def create_game():
 
 @app.route('/game/<game_id>')
 def join_game(game_id):
+    print(f'{game_id} not found in games')
     if game_id not in games:
         return redirect(url_for('index'))
     return render_template('game.html', game_id=game_id)
@@ -46,13 +49,14 @@ def join_game(game_id):
 @socketio.on('join')
 def on_join(data):
     game_id = data.get('game_id')
-    player_name = data.get('player_name')
-    stack = 200 # TODO: different starting stack
-
     assert game_id, 'no game_id'
+    assert game_id in games, 'game inaccesible'
+
+    player_name = data.get('player_name')
     assert player_name, 'player_name'
 
-    assert game_id in games, 'game inaccesible'
+    stack = data.get('player_name', 200) 
+    assert stack >= 0, 'stack cant be negative'
 
     join_game(game_id)
     games[game_id].new_player(player_name, stack)
@@ -63,33 +67,36 @@ def on_join(data):
 @socketio.on('start_game')
 def on_start(data):
     game_id = data.get('game_id')
-    player_name = data,get('player_name')
-
     assert game_id, 'no game_id'
+    assert game_id in games, 'game_id now found in games'
+
+    player_name = data.get('player_name')
     assert player_name, 'no player_name'
 
     min_players = 2
 
-    assert game_id in games
     game = games[game_id]
 
-    assert game.n_players >= min_players
+    assert game.n_players >= min_players, 'not enough players to start the game'
 
     game.start_game()
     emit('game_started', game.state(player_name), room=game_id)
 
 
+# In game actions
 @socketio.on('bet')
 def on_bet(data):
     game_id = data.get('game_id')
-    player_name = data.get('player_name')
-    amount = data.get('amount')
-
     assert game_id, 'no game_id'
-    assert player_name, 'no player_name'
-    assert amount, 'no bet amount'
-
     assert game_id in games
+
+    player_name = data.get('player_name')
+    assert player_name, 'no player_name'
+
+    amount = data.get('amount')
+    assert amount, 'no bet amount'
+    assert amout >= 0, 'amount cant be nagative'
+
 
     game = games[game_id]
 
