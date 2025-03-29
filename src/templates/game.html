@@ -5,41 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='/js/game.js') }}"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .poker-table {
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-        }
-        .player-card {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .player-area {
-            z-index: 2;
-            position: relative;
-        }
-
-        /* Add to <style> section */
-        .folded {
-        opacity: 0.5;
-        filter: grayscale(1);
-        }
-
-        .acting {
-        border: 2px solid #f59e0b; /* Highlight border */
-        }
-
-        .dealer-button {
-        width: 20px;
-        height: 20px;
-        background: gold;
-        border-radius: 50%;
-        position: absolute;
-        top: -10px;
-        left: -10px;
-        }
-
-    </style>
+    <link href="{{ url_for('static', filename='/css/output.css') }}" rel="stylesheet">
 </head>
 <body class="bg-gray-100 h-screen">
     <div class="container mx-auto px-4 py-6">
@@ -73,7 +39,7 @@
 
         <div class="relative max-w-2xl mx-auto mb-8 mt-20">
             <!-- Villain -->
-            <div id="villain" class="player-area absolute -top-16 left-1/2 transform -translate-x-1/2 text-center">
+            <div id="villain" class="player-area absolute -top-16 center-x text-center">
                 <div class="bg-white rounded-lg p-3 shadow-md">
                     <div id="villain-name" class="text-xs text-gray-600">Opponent</div>
                     <div class="flex space-x-2 mt-1">
@@ -85,20 +51,20 @@
             </div>
 
             <!-- Poker Table -->
-            <div class="poker-table rounded-full p-8 relative h-64 bg-green-800">
+            <div class="poker-table p-8 relative h-64 bg-green-800">
                 <!-- Community Cards -->
-                <div id="community-cards" class="flex justify-center space-x-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div id="community-cards" class="board1">
                     <!-- Cards will be inserted here -->
                      cards here
                 </div>
-                <div id="pot-display" class="player-area text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-8">
+                <div id="pot-display" class="pot mt-8">
                     Pot: <span id="pot-amount">0</span>
                   </div>
                   <div id="dealer-button" class="bg-yellow-600 rounded-full w-6 h-6 text-center border-10px player-area text-white absolute top-1/2 left-1/2 mt-14 mr-24">D</div>
             </div>
 
             <!-- You -->
-            <div id="hero" class="player-area absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
+            <div id="hero" class="player-area absolute -bottom-16 center-x text-center">
                 <div class="bg-white rounded-lg p-3 shadow-md">
                     <div id="hero-name" class="text-xs text-gray-600">You</div>
                     <div class="flex space-x-2 mt-1">
@@ -117,7 +83,7 @@
             <button id="check-btn" class="bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition">Check</button>
             <div class="flex space-x-2">
                 <input type="number" id="bet-amount" class="w-36 px-4 py-2 border rounded-xl" placeholder="Amount">
-                <button id="bet-btn" class="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition">Bet</button>
+                <button id="bet-btn" class="btn-active">Bet</button>
             </div>
         </div>
         <div class="flex justify-center mt-24">

@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Socket.IO Event Handlers
     socket.on('connect', () => {
-        console.log('connected')
+        console.log('connected');
     });
     
     socket.on('game_update', (game_state) => {

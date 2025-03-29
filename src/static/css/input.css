@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.player-area {
+    z-index: 2;
+    @apply center-x text-center
+}
+
+.poker-table {
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    @apply rounded-full text-white p-8 relative h-64 bg-green-800 ;
+}
+
+.player-card {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+.folded {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.pot {
+    @apply player-area absolute top-1/2;
+}
+
+
+.board {
+    @apply player-area absolute top-1/2;
+}
+
+.board1 {
+    /* @apply border absolute center-x player-area text-white text-center top-1/2; */
+    @apply flex justify-center space-x-2 absolute center-x center-y; 
+}
+
+.acting {
+    @apply border-poker-gold rounded-xl border-2; /* Highlight border */
+}
+
+.dealer-button {
+    width: 20px;
+    height: 20px;
+    background: gold;
+    border-radius: 50%;
+    position: absolute;
+    top: -10px;
+    left: -10px;
+}
+
+.center-x {
+    @apply left-1/2 transform -translate-x-1/2;
+}
+
+
+.center-y {
+    @apply top-1/2 transform -translate-y-1/2;
+}
+
+
+/* Actions */
+.btn {
+
+}
+
+
+.btn-fold {
+    @apply btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300;
+}
+
+.btn-passive {
+    @apply btn text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:ring-gray-200;
+}
+
+.btn-active {
+    @apply bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition
+}
+
+/* Disabled state */
+.btn-disabled {
+    @apply btn opacity-50 cursor-not-allowed;
+}

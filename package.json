@@ -1,0 +1,11 @@
+{
+  "name": "poker-ranger",
+  "type": "module",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/static/css/input.css -o ./src/static/css/output.css --watch",
+    "build": "tailwindcss -i ./src/static/css/input.css -o ./src/static/css/output.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
