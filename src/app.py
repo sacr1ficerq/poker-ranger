@@ -1,114 +1,141 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
-from game import Game
-
 import uuid
+
+from pokergame import Table, Action
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# In-memory storage for games TODO: move this logic to database
-games = {} 
-# TODO: store players and allow joining game with username
+# In-memory storage for tables TODO: move this logic to database
+tables = {}
+# TODO: store players and allow joining table with username
+
 
 def generate_id():
-    # Generate unique ID for the game
-    game_id = str(uuid.uuid4())[:8]
-    if game_id in games:
+    # Generate unique ID for the table
+    table_id = str(uuid.uuid4())[:8]
+    if table_id in tables:
         return generate_id()
-    return game_id
+    return table_id
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# interactions with server before game starts
-@socketio.on('request_games')
-def send_available_games():
+
+# interactions with server before table starts
+@socketio.on('request_tables')
+def send_available_tables():
     players = []
-    for game in games.values():
-        players.append(len(game.players))
-    emit('available_games', {'games': list(games.keys()), 'players': players})
+    for table in tables.values():
+        players.append(len(table.players))
+    emit('available_tables', {'tables': list(tables.keys()), 'players': players})
 
 
-@app.route('/create_game')
-def create_game():
+@app.route('/create_table')
+def create_table():
     # username = data.get('username', 'unknown')
     # assert username != 'unknown', 'user unknown'
 
-    # TODO: create game as logged in player with username and game admin capabilities
-    # TODO: create games with different stacksize/blinds/etc.
-    game_id = generate_id()
+    # TODO: create table as logged in player with username and table admin capabilities
+    # TODO: create tables with different stacksize/blinds/etc.
+    sb = 1
+    bb = 2
+    table_id = generate_id()
 
-    games[game_id] = Game(game_id)
-    return redirect(url_for('join_game', game_id=game_id))
+    tables[table_id] = Table(table_id, sb, bb)
+    return redirect(url_for('join_table', table_id=table_id))
 
 
-@app.route('/game/<game_id>')
-def join_game(game_id):
-    if game_id not in games:
-        print(f'{game_id} not found in games')
+@app.route('/table/<table_id>')
+def join_table(table_id):
+    if table_id not in tables:
+        print(f'{table_id} not found in tables')
         return redirect(url_for('index'))
-    return render_template('game.html', game_id=game_id)
+    return render_template('table.html', table_id=table_id)
 
 # TODO: fix disconnect and connect (more that 2 players in lobby)
 
 
 @socketio.on('join')
 def on_join(data):
-    game_id = data.get('game_id')
-    assert game_id, 'no game_id'
-    if game_id not in games:
-        print(f'{game_id} not found in games')
+    sid = request.sid
+    table_id = data.get('table_id')
+    assert table_id, 'no table_id'
+    if table_id not in tables:
+        print(f'{table_id} not found in tables')
         return redirect(url_for('index'))
 
-    assert game_id in games, f'game {game_id} inaccesible'
-    game = games[game_id]
+    assert table_id in tables, f'table {table_id} inaccesible'
+    table = tables[table_id]
 
     player_name = data.get('player_name')
     assert player_name, 'no player_name'
 
-    stack = data.get('stack', 200) 
+    stack = data.get('stack', 200)
     assert stack >= 0, 'stack cant be negative'
 
-    join_room(game_id)
-    game.new_player(player_name, stack)
-    emit('message', f'{player_name} has joined the game', room=game_id)
-    # player_states = list(map(lambda p: p.state(), game.players))
-    player_states = [{'name': player.name, 'stack': player.stack} for player in game.players] 
+    join_room(table_id)
+    table.add_player(sid, player_name, stack)
+    emit('message', f'{player_name} has joined the table', room=table_id)
+    # player_states = list(map(lambda p: p.state(), table.players))
+    player_states = [{'name': player.name, 'stack': player.stack} for player in table.players] 
     print('player states:', player_states)
-    emit('players_update', player_states, room=game_id)
+    emit('players_update', player_states, room=table_id)
 
 
-@socketio.on('start_game')
+@socketio.on('disconnect')
+def handle_disconnect():
+    # Find which table the disconnected player was in
+    for table_id, table in tables.items():
+        for player in table.players:
+            if player.id == request.sid:  # Compare session IDs
+                player_name = player.name
+                table.remove_player(player_name)
+                leave_room(table_id)
+                # Notify remaining players
+                emit('message', f'{player_name} has disconnected', room=table_id)
+                emit('players_update', table.state()['players'], room=table_id)
+
+                # Optional: Handle table cleanup if empty
+                if len(table.players) == 0:
+                    tables.pop(table_id, None)
+                    print(f"Table {table_id} removed (no players left)")
+                break
+
+
+@socketio.on('start_table')
 def on_start(data):
-    game_id = data.get('game_id')
-    assert game_id, 'no game_id'
-    assert game_id in games, 'game_id now found in games'
+    table_id = data.get('table_id')
+    assert table_id, 'no table_id'
+    assert table_id in tables, 'table_id now found in tables'
 
     player_name = data.get('player_name')
     assert player_name, 'no player_name'
 
     min_players = 2
+    max_players = 2
 
-    game = games[game_id]
+    table = tables[table_id]
 
-    assert len(game.players) >= min_players, 'not enough players to start the game'
+    assert len(table.players) >= min_players, 'not enough players to start the table'
+    assert len(table.players) <= max_players, 'to many players'
 
-    game.start_game()
-    # emit('game_started', game.state(player_name), room=game_id)
-    print(game.state(player_name))
-    emit('game_update', game.state(player_name), room=game_id)
+    table.start_game()
+    # emit('table_started', table.state(player_name), room=table_id)
+    print(table.state())
+    emit('table_update', table.state(), room=table_id)
 
 
-# In game actions
+# In table actions
 @socketio.on('bet')
 def on_bet(data):
-    game_id = data.get('game_id')
-    assert game_id, 'no game_id'
-    assert game_id in games
+    table_id = data.get('table_id')
+    assert table_id, 'no table_id'
+    assert table_id in tables
 
     player_name = data.get('player_name')
     assert player_name, 'no player_name'
@@ -116,12 +143,12 @@ def on_bet(data):
     amount = data.get('amount')
     assert amount, 'no bet amount'
     assert amount >= 0, 'amount cant be nagative'
+    action = Action.BET
 
+    table = tables[table_id]
 
-    game = games[game_id]
-
-    game.bet(player_name, amount)
-    emit('game_update', game.state(player_name), room=game_id)
+    table.act(action, player_name, amount)
+    emit('table_update', table.state(), room=table_id)
 
 
 if __name__ == '__main__':

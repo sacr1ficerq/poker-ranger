@@ -9,9 +9,12 @@
         - Server route for creating room (done)
     - Room
         - Client rendering of room: players, room_id (done)
-        - Server route for starting game
+        - Server route for starting game (done)
+        - Public and private states in library
+        - Handling disconnect properly
         - Client rendering of game state
         - Server routes for in game actions
+        - add all-in support inside library
 2. Skewed sampling (for preflop)
 3. Game tree nodes
 
