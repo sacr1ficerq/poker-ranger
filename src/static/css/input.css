@@ -27,6 +27,22 @@
     @apply player-area absolute top-1/2;
 }
 
+.bet-placed {
+    left: 50%;
+    z-index: 2;
+    transform: translateX(-50%);
+    @apply font-bold text-center absolute;
+}
+
+.bet-placed-villain {
+    top: 36px;
+    @apply bet-placed;
+}
+
+.bet-placed-hero {
+    bottom: 36px; 
+    @apply bet-placed;
+}
 
 .board {
     @apply player-area absolute top-1/2;
@@ -42,13 +58,10 @@
 }
 
 .dealer-button {
-    width: 20px;
-    height: 20px;
-    background: gold;
-    border-radius: 50%;
-    position: absolute;
-    top: -10px;
-    left: -10px;
+    top: 20%;
+    left: 40%;
+    z-index: 2;
+    @apply bg-yellow-600 rounded-full w-6 h-6 text-center absolute;
 }
 
 .center-x {
@@ -63,12 +76,12 @@
 
 /* Actions */
 .btn {
-
+    @apply text-white;
 }
 
 
 .btn-fold {
-    @apply btn text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300;
+    @apply btn  bg-blue-700 hover:bg-blue-800 focus:ring-blue-300;
 }
 
 .btn-passive {
@@ -76,7 +89,7 @@
 }
 
 .btn-active {
-    @apply bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition
+    @apply bg-green-500  px-6 py-2 rounded-xl hover:bg-green-600 transition
 }
 
 /* Disabled state */

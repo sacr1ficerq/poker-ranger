@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         console.log("table starts")
+
         socket.emit('start_table', {'table_id': table_id, 'player_name': player_name})
     });
    
@@ -137,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update hero's cards
             elements.hero_stack.textContent = hero.stack;
             // Highlight if acting
+            elements.hero_bet.textContent = hero.bet;
             // elements.hero.classList.toggle('acting', hero.is_acting);
             elements.hero.classList.toggle('acting', round['acting'] == player_name);
         }
@@ -145,8 +147,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (villain) {
           // Hide villain's cards (only show count if all-in)
           elements.villain_stack.textContent = villain.stack;
-          elements.villain.querySelector('.player-card').textContent = 
-            villain.all_in ? 'ALL IN' : '';
+          elements.villain_bet.textContent = villain.bet;
+
           elements.villain.classList.toggle('folded', villain.folded);
           elements.villain.classList.toggle('acting', round['acting'] == villain_name);
         }
