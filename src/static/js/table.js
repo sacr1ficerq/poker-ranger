@@ -51,6 +51,11 @@ document.addEventListener('DOMContentLoaded', function() {
         update_table_ui(table_state);
     });
 
+    socket.on('private_update', (private_state) => {
+        console.log(private_state);
+        update_cards(private_state['cards']);
+    });
+
 
     socket.on('message', (message) => {
         console.log('message:', message);
@@ -87,7 +92,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("table starts")
         socket.emit('start_table', {'table_id': table_id, 'player_name': player_name})
     });
-    
+   
+   function update_cards(cards) {
+        elements.hero.querySelectorAll('.player-card').forEach((card, i) => {
+            card.textContent = cards[i] || '';
+        });
+   }
+
     function update_table_ui(table_state) {
         console.log('Updating table UI...')
         console.log('table state:', table_state)
@@ -99,9 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hero) {
             // Update hero's cards
             elements.hero_stack.textContent = hero.stack;
-            elements.hero.querySelectorAll('.player-card').forEach((card, i) => {
-                card.textContent = hero.cards[i] || '';
-            });
             // Highlight if acting
             elements.hero.classList.toggle('acting', hero.is_acting);
         }

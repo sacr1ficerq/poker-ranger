@@ -35,6 +35,35 @@ def send_available_tables():
     emit('available_tables', {'tables': list(tables.keys()), 'players': players})
 
 
+@socketio.on('request_private')
+def send_private(data):
+    sid = request.sid
+    table_id = data.get('table_id')
+    assert table_id, 'no table_id'
+    if table_id not in tables:
+        print(f'{table_id} not found in tables')
+        return redirect(url_for('index'))
+
+    assert table_id in tables, f'table {table_id} inaccesible'
+    table = tables[table_id]
+
+    player_name = data.get('player_name')
+    assert player_name, 'no player_name'
+
+    stack = data.get('stack', 200)
+    assert stack >= 0, 'stack cant be negative'
+
+    emit('private_update', table.private_state(player_name), room=sid)
+
+
+def deal(table_id):
+    assert table_id in tables
+    table = tables[table_id]
+    for player in table.players:
+        emit('private_update', table.private_state(player.name), room=player.id)
+
+
+
 @app.route('/create_table')
 def create_table():
     # username = data.get('username', 'unknown')
@@ -127,6 +156,7 @@ def on_start(data):
     table.start_game()
     # emit('table_started', table.state(player_name), room=table_id)
     print(table.state())
+    deal(table_id)
     emit('table_update', table.state(), room=table_id)
 
 
