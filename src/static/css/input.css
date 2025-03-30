@@ -80,6 +80,6 @@
 }
 
 /* Disabled state */
-.btn-disabled {
+.disabled {
     @apply btn opacity-50 cursor-not-allowed;
 }

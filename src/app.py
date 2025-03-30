@@ -63,7 +63,6 @@ def deal(table_id):
         emit('private_update', table.private_state(player.name), room=player.id)
 
 
-
 @app.route('/create_table')
 def create_table():
     # username = data.get('username', 'unknown')
@@ -157,6 +156,8 @@ def on_start(data):
     # emit('table_started', table.state(player_name), room=table_id)
     print(table.state())
     deal(table_id)
+
+    emit('game_start', room=table_id)
     emit('table_update', table.state(), room=table_id)
 
 
@@ -170,7 +171,7 @@ def on_bet(data):
     player_name = data.get('player_name')
     assert player_name, 'no player_name'
 
-    amount = data.get('amount')
+    amount = float(data.get('amount'))  # TODO: handle not-float
     assert amount, 'no bet amount'
     assert amount >= 0, 'amount cant be nagative'
     action = Action.BET
