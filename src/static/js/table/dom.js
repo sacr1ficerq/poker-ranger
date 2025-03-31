@@ -1,32 +1,41 @@
+const elements = {
+    table_id: 'table-id-display',
+
+    hero: 'hero',
+    villain: 'villain',
+    hero_stack: 'hero-stack',
+    villain_stack: 'villain-stack',
+
+    hero_name: 'hero-name',
+    villain_name: 'villain-name',
+    start_table_btn: 'start-table',
+
+    actions: 'actions',
+    community_cards: 'community-cards',
+    pot_amount: 'pot-amount',
+
+    bet_btn: 'bet-btn',
+    check_btn: 'check-btn',
+    fold_btn: 'fold-btn',
+
+    call_btn: 'call-btn',
+    raise_btn: 'raise-btn',
+
+    bet_amount: 'bet-amount',
+
+    hero_bet: 'hero-bet',
+    villain_bet: 'villain-bet',
+
+    username_modal: 'username-modal',
+    username_form: 'username-form',
+    username_input: 'username',
+    username_submit: 'username-submit',
+}
+
 export function get_elements(doc) {
-    return {
-        table_id: doc.getElementById('table-id-display'),
-        hero_name: doc.getElementById('player-name-display'),
-
-        hero: doc.getElementById('hero'),
-        villain: doc.getElementById('villain'),
-
-        hero_stack: doc.getElementById('hero-stack'),
-        villain_stack: doc.getElementById('villain-stack'),
-
-        hero_name: doc.getElementById('hero-name'),
-        villain_name: doc.getElementById('villain-name'),
-
-        start_table_btn: doc.getElementById('start-table'),
-
-        actions: doc.getElementById('actions'),
-        community_cards: doc.getElementById('community-cards'),
-
-        pot_amount: doc.getElementById('pot-amount'),
-
-        bet_btn: doc.getElementById('bet-btn'),
-        bet_amount: doc.getElementById('bet-amount'),
-
-        hero_bet: doc.getElementById('hero-bet'),
-        villain_bet: doc.getElementById('villain-bet'),
-
-        username_modal: doc.getElementById('username-modal'),
-        username_form: doc.getElementById('username-form'),
-        username_input: doc.getElementById('username'),
+    const result = {};
+    for (const [key, id] of Object.entries(elements)) {
+        result[key] = doc.getElementById(id);
     }
+    return result;
 };

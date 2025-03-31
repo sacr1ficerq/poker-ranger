@@ -161,9 +161,8 @@ def on_start(data):
     emit('table_update', table.state(), room=table_id)
 
 
-# In table actions
-@socketio.on('bet')
-def on_bet(data):
+@socketio.on('action')
+def on_action(data):
     table_id = data.get('table_id')
     assert table_id, 'no table_id'
     assert table_id in tables
@@ -171,14 +170,28 @@ def on_bet(data):
     hero_name = data.get('hero_name')
     assert hero_name, 'no hero_name'
 
-    amount = float(data.get('amount'))  # TODO: handle not-float
-    assert amount, 'no bet amount'
+    amount = data.get('amount')  # TODO: handle not-float
+    assert amount is not None, 'no bet amount'
+    try:
+        amount = float(amount)
+    except ValueError:
+        assert False, 'amount is not convertible'
+
     assert amount >= 0, 'amount cant be nagative'
-    action = Action.BET
+
+    action = data.get('action')  # TODO: handle not-float
+    assert action, 'no action'
+
+    d = {'BET': Action.BET,
+         'CHECK': Action.CHECK,
+         'CALL': Action.CALL,
+         'RAISE': Action.RAISE,
+         'FOLD': Action.FOLD}
 
     table = tables[table_id]
+    print(hero_name, action, amount)
 
-    table.act(action, hero_name, amount)
+    table.act(d[action], hero_name, amount)
     emit('table_update', table.state(), room=table_id)
 
 
