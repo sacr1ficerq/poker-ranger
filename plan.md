@@ -11,7 +11,7 @@
         - Client rendering of room: players, room_id (done)
         - Server route for starting game (done)
         - Public and private states in library (done)
-        - Handling disconnect properly
+        - Handling disconnect properly (done)
         - Client rendering of game state
         - Server routes for in game actions
         - add all-in support inside library

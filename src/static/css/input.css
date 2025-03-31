@@ -9,12 +9,13 @@
 
 .poker-table {
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    @apply rounded-full text-white p-8 relative h-64 bg-green-800 ;
+    @apply rounded-full text-white p-8 relative h-64 bg-green-800;
 }
 
 .player-card {
     background: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    @apply w-8 h-12 rounded;
 }
 
 
@@ -76,20 +77,19 @@
 
 /* Actions */
 .btn {
-    @apply text-white;
+    @apply text-white px-6 py-2 transition rounded-xl;
 }
 
-
 .btn-fold {
-    @apply btn  bg-blue-700 hover:bg-blue-800 focus:ring-blue-300;
+    @apply btn bg-red-500 hover:bg-red-600;
 }
 
 .btn-passive {
-    @apply btn text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:ring-gray-200;
+    @apply btn bg-blue-500 hover:bg-blue-600;
 }
 
 .btn-active {
-    @apply bg-green-500  px-6 py-2 rounded-xl hover:bg-green-600 transition
+    @apply btn bg-green-500 hover:bg-green-600;
 }
 
 /* Disabled state */

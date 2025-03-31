@@ -47,13 +47,13 @@ def send_private(data):
     assert table_id in tables, f'table {table_id} inaccesible'
     table = tables[table_id]
 
-    player_name = data.get('player_name')
-    assert player_name, 'no player_name'
+    hero_name = data.get('hero_name')
+    assert hero_name, 'no hero_name'
 
     stack = data.get('stack', 200)
     assert stack >= 0, 'stack cant be negative'
 
-    emit('private_update', table.private_state(player_name), room=sid)
+    emit('private_update', table.private_state(hero_name), room=sid)
 
 
 def deal(table_id):
@@ -100,15 +100,15 @@ def on_join(data):
     assert table_id in tables, f'table {table_id} inaccesible'
     table = tables[table_id]
 
-    player_name = data.get('player_name')
-    assert player_name, 'no player_name'
+    hero_name = data.get('hero_name')
+    assert hero_name, 'no hero_name'
 
     stack = data.get('stack', 200)
     assert stack >= 0, 'stack cant be negative'
 
     join_room(table_id)
-    table.add_player(sid, player_name, stack)
-    emit('message', f'{player_name} has joined the table', room=table_id)
+    table.add_player(sid, hero_name, stack)
+    emit('message', f'{hero_name} has joined the table', room=table_id)
     # player_states = list(map(lambda p: p.state(), table.players))
     player_states = [{'name': player.name, 'stack': player.stack} for player in table.players] 
     print('player states:', player_states)
@@ -121,11 +121,11 @@ def handle_disconnect():
     for table_id, table in tables.items():
         for player in table.players:
             if player.id == request.sid:  # Compare session IDs
-                player_name = player.name
-                table.remove_player(player_name)
+                hero_name = player.name
+                table.remove_player(hero_name)
                 leave_room(table_id)
                 # Notify remaining players
-                emit('message', f'{player_name} has disconnected', room=table_id)
+                emit('message', f'{hero_name} has disconnected', room=table_id)
                 emit('players_update', table.state()['players'], room=table_id)
 
                 # Optional: Handle table cleanup if empty
@@ -141,8 +141,8 @@ def on_start(data):
     assert table_id, 'no table_id'
     assert table_id in tables, 'table_id now found in tables'
 
-    player_name = data.get('player_name')
-    assert player_name, 'no player_name'
+    hero_name = data.get('hero_name')
+    assert hero_name, 'no hero_name'
 
     min_players = 2
     max_players = 2
@@ -153,7 +153,7 @@ def on_start(data):
     assert len(table.players) <= max_players, 'to many players'
 
     table.start_game()
-    # emit('table_started', table.state(player_name), room=table_id)
+    # emit('table_started', table.state(hero_name), room=table_id)
     print(table.state())
     deal(table_id)
 
@@ -168,8 +168,8 @@ def on_bet(data):
     assert table_id, 'no table_id'
     assert table_id in tables
 
-    player_name = data.get('player_name')
-    assert player_name, 'no player_name'
+    hero_name = data.get('hero_name')
+    assert hero_name, 'no hero_name'
 
     amount = float(data.get('amount'))  # TODO: handle not-float
     assert amount, 'no bet amount'
@@ -178,7 +178,7 @@ def on_bet(data):
 
     table = tables[table_id]
 
-    table.act(action, player_name, amount)
+    table.act(action, hero_name, amount)
     emit('table_update', table.state(), room=table_id)
 
 

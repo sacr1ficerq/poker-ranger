@@ -1,49 +1,24 @@
+import { update_table, update_players, update_cards } from './game-ui.js';
+import { elements } from './dom.js';
+
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const elements = {
-        table_id: document.getElementById('table-id-display'),
-        player_name: document.getElementById('player-name-display'),
-
-        hero: document.getElementById('hero'),
-        villain: document.getElementById('villain'),
-
-        hero_stack: document.getElementById('hero-stack'),
-        villain_stack: document.getElementById('villain-stack'),
-
-        hero_name: document.getElementById('hero-name'),
-        villain_name: document.getElementById('villain-name'),
-
-        start_table_btn: document.getElementById('start-table'),
-
-        actions: document.getElementById('actions'),
-        community_cards: document.getElementById('community-cards'),
-    
-        bet_btn: document.getElementById('bet-btn'),
-        bet_amount: document.getElementById('bet-amount'),
-
-        hero_bet: document.getElementById('hero-bet'),
-        villain_bet: document.getElementById('villain-bet'),
-
-        username_modal: document.getElementById('username-modal'),
-        username_form: document.getElementById('username-form'),
-        username_input: document.getElementById('username'),
-
-    };
-
     const socket = io();
+
     const path_segments = window.location.pathname.split('/');
-    const table_id = path_segments[path_segments.length - 1];
-    let can_start = false;
+    const state = {
+        table_id: path_segments[path_segments.length - 1],
+        can_start: false,
+        hero_name: 'Anonimous',
+        villain_name: 'Anonimous'
+    };
 
     // hide actions before game starts
     elements.actions.classList.add('hidden');
     elements.start_table_btn.classList.add('disabled');
 
-    console.log("table ID:", table_id);
-    let player_name = 'Anonimous'
-    let villain_name = 'Anonimous'
+    console.log("table ID:", state.table_id);
 
-    elements.table_id.textContent = table_id;
+    elements.table_id.textContent = state.table_id;
     // elements.actions deactivate
 
     // Socket.IO Event Handlers
@@ -59,12 +34,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     socket.on('table_update', (table_state) => {
         console.log(table_state);
-        update_table_ui(table_state);
+        update_table(elements, table_state, state);
     });
 
     socket.on('private_update', (private_state) => {
         console.log(private_state);
-        update_cards(private_state['cards']);
+        update_cards(elements, private_state['cards']);
     });
 
 
@@ -74,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.on('players_update', (player_states) => {
         console.log(player_states);
-        update_players(player_states);
+        update_players(elements, player_states, state);
     });
     
     // Add event listeners
@@ -84,103 +59,28 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const username = elements.username_input.value.trim();
         if (username) {
-            player_name = username;
+            state.hero_name = username;
             elements.username_modal.classList.add('hidden');
         }
-        socket.emit('join', { "table_id": table_id, "player_name": player_name });
+        socket.emit('join', { "table_id": state.table_id, "hero_name": state.hero_name });
     });
 
 
     elements.bet_btn.addEventListener('click', () => {
         const amount = parseFloat(elements.bet_amount.value);
-        console.log(player_name)
+        console.log(state.hero_name)
         console.log("Hero bets: ", amount)
-        socket.emit('bet', { "table_id": table_id, "amount": amount, "player_name": player_name});
+        socket.emit('bet', { "table_id": state.table_id, "amount": amount, "hero_name": state.hero_name});
     });
 
     
     elements.start_table_btn.addEventListener('click', () => {
-        if (!can_start) {
+        if (!state.can_start) {
+            console.log('cant start')
             return;
         }
         console.log("table starts")
 
-        socket.emit('start_table', {'table_id': table_id, 'player_name': player_name})
+        socket.emit('start_table', {'table_id': state.table_id, 'hero_name': state.hero_name})
     });
-   
-   function update_cards(cards) {
-        s = "23456789TJQKA"
-        suits = {
-            'h': '♥',
-            'd': '♦',
-            's': '♠',
-            'c': '♣'
-        }
-        cards = cards.sort((a, b) => s.indexOf(b[0]) - s.indexOf(a[0]))
-        elements.hero.querySelectorAll('.player-card').forEach((card, i) => {
-            nom = cards[i][0];
-            suit = cards[i][1];
-            card.textContent = nom + suits[suit] || '';
-        });
-   }
-
-    function update_table_ui(table_state) {
-        console.log('Updating table UI...')
-        console.log('table state:', table_state)
-        // Your UI update logic here
-        // Inside update_table_ui()
-        round = table_state["round"]
-
-
-        // Inside update_table_ui()
-        const hero = table_state.players.find(p => p.name === player_name);
-        if (hero) {
-            // Update hero's cards
-            elements.hero_stack.textContent = hero.stack;
-            // Highlight if acting
-            elements.hero_bet.textContent = hero.bet;
-            // elements.hero.classList.toggle('acting', hero.is_acting);
-            elements.hero.classList.toggle('acting', round['acting'] == player_name);
-        }
-
-        const villain = table_state.players.find(p => p.name !== player_name);
-        if (villain) {
-          // Hide villain's cards (only show count if all-in)
-          elements.villain_stack.textContent = villain.stack;
-          elements.villain_bet.textContent = villain.bet;
-
-          elements.villain.classList.toggle('folded', villain.folded);
-          elements.villain.classList.toggle('acting', round['acting'] == villain_name);
-        }
-
-        // Inside update_table_ui()
-        document.getElementById('pot-amount').textContent = table_state.round.pot;
-        // Disable buttons if not your turn
-        // elements.actions.classList.toggle('opacity-50', !hero?.is_acting);
-        
-        // Add board to table_state
-        elements.community_cards.innerHTML = table_state.round.board
-        .map(card => `<div class="community-card">${card}</div>`)
-        .join('');
-    }
-
-    function update_players(players_state) {
-        console.log('Updating players...')
-        console.log('players:', players_state)
-        if (players_state.length >= 2) {
-            can_start = true;
-            elements.start_table_btn.classList.remove('disabled');
-        }
-        players_state.forEach(player => {
-            if (player.name === player_name) {
-              elements.hero_stack.textContent = player.stack;
-              elements.hero_name.textContent = player.name;
-            } else {
-              elements.villain_stack.textContent = player.stack;
-              elements.villain_name.textContent = player.name;
-              villain_name = player.name;
-            }
-        });
-    }
-
 });

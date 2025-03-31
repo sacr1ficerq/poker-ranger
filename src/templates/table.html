@@ -4,7 +4,9 @@
     <title>Poker Baker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='/js/table.js') }}"></script>
+    <script src="{{ url_for('static', filename='/js/table.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='/js/dom.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='/js/game-ui.js') }}" type="module"></script>
     <link href="{{ url_for('static', filename='/css/output.css') }}" rel="stylesheet">
 </head>
 <body class="bg-gray-100 h-screen">
@@ -43,15 +45,15 @@
             <div class="bg-white rounded-lg p-3 shadow-md">
                 <div id="villain-name" class="text-xs text-gray-600">Opponent</div>
                 <div class="flex space-x-2 mt-1">
-                    <div class="player-card w-8 h-12 rounded"></div>
-                    <div class="player-card w-8 h-12 rounded"></div>
+                    <div class="player-card"></div>
+                    <div class="player-card"></div>
                 </div>
                 <div id="villain-stack" class="text-xs text-gray-600">200</div>
             </div>
         </div>
 
         <!-- Poker Table -->
-        <div class="poker-table relative h-64 bg-green-800">
+        <div class="poker-table">
             <!-- Villains bet -->
             <div class="bet-placed-villain" id="villain-bet">0</div>
             <!-- Community Cards -->
@@ -72,8 +74,8 @@
             <div class="bg-white rounded-lg p-3 shadow-md">
                 <div id="hero-name" class="text-xs text-gray-600">You</div>
                 <div class="flex space-x-2 mt-1">
-                    <div class="player-card w-8 h-12 rounded"></div>
-                    <div class="player-card w-8 h-12 rounded"></div>
+                    <div class="player-card"></div>
+                    <div class="player-card"></div>
                 </div>
                 <div id="hero-stack" class="text-xs text-gray-600">100</div>
             </div>
@@ -83,15 +85,15 @@
     <!-- Actions -->
     <!-- TODO: in table tree mode add double tap buttons for x% bet -->
     <div id="actions" class="flex justify-center space-x-4 mt-20">
-        <button id="fold-btn" class="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition">Fold</button>
-        <button id="check-btn" class="bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition">Check</button>
+        <button id="fold-btn" class="btn-fold">Fold</button>
+        <button id="check-btn" class="btn-passive">Check</button>
         <div class="flex space-x-2">
             <input type="number" id="bet-amount" class="w-36 px-4 py-2 border rounded-xl" placeholder="Amount">
             <button id="bet-btn" class="btn-active">Bet</button>
         </div>
     </div>
     <div class="flex justify-center mt-24">
-        <button id="start-table" class="bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition">Start table</button>
+        <button id="start-table" class="btn-passive">Start table</button>
     </div>
 </div>
 </body>
