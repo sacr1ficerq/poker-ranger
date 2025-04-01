@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
     handle(socket, state, elements);
 
     // Add event listeners
-    // TODO: press buttons with keyboard
     elements.username_form.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = elements.username_input.value.trim();
@@ -69,10 +68,11 @@ document.addEventListener('DOMContentLoaded', function() {
         socket.emit('action', req);
     }
     
+    // TODO: press buttons with keyboard
     elements.bet_btn.addEventListener('click', () => {
         var amount = parseFloat(elements.bet_amount.value);
         amount = Math.round(amount * 100) / 100  // TODO: problem with all-ins
-        act(state, Action.BET, amount);
+        act(state, Action.BET, amount - state.max_bet_placed);
     });
 
     elements.check_btn.addEventListener('click', () => {
@@ -104,8 +104,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     elements.raise_btn.addEventListener('click', () => {
         var amount = parseFloat(elements.bet_amount.value);
-        amount = Math.round(amount * 100) / 100
-        act(state, Action.RAISE, amount);
+        amount = Math.round(amount * 100) / 100;
+        console.log(state);
+        act(state, Action.RAISE, amount - parseFloat(elements.hero_bet.textContent));
     });
 
 

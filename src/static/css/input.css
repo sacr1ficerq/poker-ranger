@@ -19,6 +19,13 @@
 }
 
 
+.community-card {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    @apply w-8 h-12 rounded;
+}
+
+
 .folded {
     opacity: 0.5;
     filter: grayscale(1);
@@ -55,7 +62,16 @@
 }
 
 .acting {
-    @apply border-poker-gold rounded-xl border-2; /* Highlight border */
+    @apply border-poker-gold rounded-xl border-2;
+}
+
+.winning {
+    @apply border-e-teal-500 rounded-xl border-2;
+}
+
+
+.all-in {
+    @apply border-red-500 rounded-xl border-2;
 }
 
 .dealer-button {

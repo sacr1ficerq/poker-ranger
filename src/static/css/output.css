@@ -961,6 +961,11 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
+.text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+}
+
 .shadow-lg {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
@@ -1014,6 +1019,14 @@ video {
 }
 
 .player-card {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: 3rem;
+  width: 2rem;
+  border-radius: 0.25rem;
+}
+
+.community-card {
   background: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   height: 3rem;
@@ -1101,7 +1114,20 @@ video {
   border-width: 2px;
   --tw-border-opacity: 1;
   border-color: rgb(245 158 11 / var(--tw-border-opacity, 1));
-  /* Highlight border */
+}
+
+.winning {
+  border-radius: 0.75rem;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-inline-end-color: rgb(20 184 166 / var(--tw-border-opacity, 1));
+}
+
+.all-in {
+  border-radius: 0.75rem;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
 }
 
 .dealer-button {

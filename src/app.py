@@ -32,7 +32,8 @@ def send_available_tables():
     players = []
     for table in tables.values():
         players.append(len(table.players))
-    emit('available_tables', {'tables': list(tables.keys()), 'players': players})
+    res = {'tables': list(tables.keys()), 'players': players}
+    emit('available_tables', res)
 
 
 @socketio.on('request_private')
@@ -53,22 +54,21 @@ def send_private(data):
     stack = data.get('stack', 200)
     assert stack >= 0, 'stack cant be negative'
 
-    emit('private_update', table.private_state(hero_name), room=sid)
+    res = table.private_state(hero_name)
+    emit('private_update', res, room=sid)
 
 
 def deal(table_id):
     assert table_id in tables
     table = tables[table_id]
     for player in table.players:
-        emit('private_update', table.private_state(player.name), room=player.id)
+        res = table.private_state(player.name)
+        emit('private_update', res, room=player.id)
 
 
+# TODO: create table as logged in player with username and table admin capabilities
 @app.route('/create_table')
 def create_table():
-    # username = data.get('username', 'unknown')
-    # assert username != 'unknown', 'user unknown'
-
-    # TODO: create table as logged in player with username and table admin capabilities
     # TODO: create tables with different stacksize/blinds/etc.
     sb = 1
     bb = 2
@@ -85,8 +85,6 @@ def join_table(table_id):
         return redirect(url_for('index'))
     return render_template('table.html', table_id=table_id)
 
-# TODO: fix disconnect and connect (more that 2 players in lobby)
-
 
 @socketio.on('join')
 def on_join(data):
@@ -101,7 +99,7 @@ def on_join(data):
     table = tables[table_id]
 
     hero_name = data.get('hero_name')
-    assert hero_name, 'no hero_name'
+    assert hero_name is not None, 'no hero_name'
 
     stack = data.get('stack', 200)
     assert stack >= 0, 'stack cant be negative'
@@ -110,7 +108,8 @@ def on_join(data):
     table.add_player(sid, hero_name, stack)
     emit('message', f'{hero_name} has joined the table', room=table_id)
     # player_states = list(map(lambda p: p.state(), table.players))
-    player_states = [{'name': player.name, 'stack': player.stack} for player in table.players] 
+    player_states = [{'name': player.name, 'stack': player.stack}
+                     for player in table.players]
     print('player states:', player_states)
     emit('players_update', player_states, room=table_id)
 
@@ -124,11 +123,9 @@ def handle_disconnect():
                 hero_name = player.name
                 table.remove_player(hero_name)
                 leave_room(table_id)
-                # Notify remaining players
                 emit('message', f'{hero_name} has disconnected', room=table_id)
                 emit('players_update', table.state()['players'], room=table_id)
 
-                # Optional: Handle table cleanup if empty
                 if len(table.players) == 0:
                     tables.pop(table_id, None)
                     print(f"Table {table_id} removed (no players left)")
@@ -137,6 +134,15 @@ def handle_disconnect():
 
 @socketio.on('start_table')
 def on_start(data):
+    table_id = data.get('table_id')
+    assert table_id, 'no table_id'
+    assert table_id in tables, 'table_id now found in tables'
+    emit('game_start', room=table_id)
+    start_round(data)
+
+
+@socketio.on('start_round')
+def start_round(data):
     table_id = data.get('table_id')
     assert table_id, 'no table_id'
     assert table_id in tables, 'table_id now found in tables'
@@ -149,15 +155,16 @@ def on_start(data):
 
     table = tables[table_id]
 
-    assert len(table.players) >= min_players, 'not enough players to start the table'
-    assert len(table.players) <= max_players, 'to many players'
+    n = len(table.players)
+    assert n >= min_players, 'not enough players to start the round'
+    assert n <= max_players, 'to many players'
 
-    table.start_game()
+    table.new_round()
     # emit('table_started', table.state(hero_name), room=table_id)
     print(table.state())
     deal(table_id)
 
-    emit('game_start', room=table_id)
+    emit('new_round', room=table_id)
     emit('table_update', table.state(), room=table_id)
 
 
@@ -170,8 +177,9 @@ def on_action(data):
     hero_name = data.get('hero_name')
     assert hero_name, 'no hero_name'
 
-    amount = data.get('amount')  # TODO: handle not-float
+    amount = data.get('amount')
     assert amount is not None, 'no bet amount'
+
     try:
         amount = float(amount)
     except ValueError:
@@ -179,7 +187,7 @@ def on_action(data):
 
     assert amount >= 0, 'amount cant be nagative'
 
-    action = data.get('action')  # TODO: handle not-float
+    action = data.get('action')
     assert action, 'no action'
 
     d = {'BET': Action.BET,
