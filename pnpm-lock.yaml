@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      mithril:
+        specifier: ^2.2.15
+        version: 2.2.15
     devDependencies:
       tailwindcss:
         specifier: ^3.4.1
@@ -237,6 +241,9 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  mithril@2.2.15:
+    resolution: {integrity: sha512-jM4bWhyg8FdiSgT+zea9CjDajRnkRK4MggOKTAIEBrYrqRvbnYM0c4hIqn3giomTKSSijt9XadLF/Uz81Sctiw==}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -640,6 +647,8 @@ snapshots:
       brace-expansion: 2.0.1
 
   minipass@7.1.2: {}
+
+  mithril@2.2.15: {}
 
   mz@2.7.0:
     dependencies:

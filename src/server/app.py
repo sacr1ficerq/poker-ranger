@@ -5,7 +5,12 @@ import uuid
 
 from pokergame import Table, Action
 
-app = Flask(__name__)
+app = Flask(
+  __name__, 
+  static_folder='../client/static/',
+  template_folder='../client/templates/'
+)
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # In-memory storage for tables TODO: move this logic to database

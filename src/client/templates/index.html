@@ -3,9 +3,10 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poker Lobby</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='/js/lobby.js') }}"></script>
+    <link href="{{ url_for('static', filename='/css/output.css') }}" rel="stylesheet">
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
     <style>
         .lobby-card:hover {
             transform: translateY(-2px);

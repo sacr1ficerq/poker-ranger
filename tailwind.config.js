@@ -1,7 +1,7 @@
 module.exports = {
   content: [
-    "./src/templates/**/*.html",  // Scan all Flask templates
-    "./src/static/**/*.js"        // Scan any JS files
+    "./src/client/templates/**/*.html",  // Scan all Flask templates
+    "./src/client/static/**/*.js"        // Scan any JS files
   ],
   theme: {
     extend: {

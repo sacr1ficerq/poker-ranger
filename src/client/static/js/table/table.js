@@ -1,7 +1,6 @@
 import { get_elements } from './dom.js';
 import { handle } from './socketio.js';
 
-
 const Action = Object.freeze({
     BET: 'BET',
     CHECK: 'CHECK',
