@@ -34,11 +34,11 @@ def index():
 # interactions with server before table starts
 @socketio.on('request_tables')
 def send_available_tables():
-    players = []
-    for table in tables.values():
-        players.append(len(table.players))
-    res = {'tables': list(tables.keys()), 'players': players}
-    emit('available_tables', res)
+    res = list(map(lambda id:
+                   {'players': len(tables[id].players),
+                    'id': id},
+                   tables.keys()))
+    emit('update_tables', {'tables': res})
 
 
 @socketio.on('request_private')

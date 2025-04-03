@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+.lobby-item {
+    @apply grid grid-cols-4 items-center px-6 py-4;
+}
+
+button {
+    @apply items-center justify-center rounded-lg;
+}
+
+.btn-primary {
+    @apply transition-colors text-white bg-blue-500 hover:bg-blue-600;
+}
+
+.btn-nice {
+    @apply transition-colors text-white bg-green-500 hover:bg-green-600;
+}
+
+.medium {
+    @apply px-6 py-3 font-medium;
+}
+
+.small {
+    @apply px-2 py-1 text-sm;
+}
+
 .player-area {
     z-index: 2;
     @apply center-x text-center

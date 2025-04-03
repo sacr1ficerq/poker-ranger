@@ -2,64 +2,12 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poker Lobby</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='/js/lobby.js') }}"></script>
-    <link href="{{ url_for('static', filename='/css/output.css') }}" rel="stylesheet">
     <script src="https://unpkg.com/mithril/mithril.js"></script>
-    <style>
-        .lobby-card:hover {
-            transform: translateY(-2px);
-            transition: all 0.2s ease;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <title>Poker Lobby</title>
+    <script type="module" src="{{ url_for('static', filename='/js/lobby.js') }}"></script>
+    <link href="{{ url_for('static', filename='/css/output.css') }}" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-4xl font-bold text-gray-800">Poker Lobby</h1>
-            <a href="/create_table" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-colors">
-                New table
-            </a>
-        </div>
-
-        <!-- Lobby List -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <!-- Table Header -->
-            <div class="bg-gray-50 px-6 py-3 grid grid-cols-4 font-medium text-gray-500">
-                <div>table ID</div>
-                <div>Players</div>
-                <div>Status</div>
-                <!-- <div>Action</div> -->
-                <div><button id="refresh-btn" class="text-white border rounded px-2 bg-blue-500">Refresh</button></div>
-            </div>
-
-            <!-- Lobby Items -->
-            <div class="divide-y divide-gray-100">
-                <!-- Example Lobby 1 -->
-                <div class="grid grid-cols-4 items-center px-6 py-4 hover:bg-gray-50 transition-colors">
-                    <div class="font-mono text-gray-600">#BAKER25</div>
-                    <div>1/2 players</div>
-                    <div><span class="px-2 py-1 bg-green-100 text-green-600 rounded-full text-sm">Waiting</span></div>
-                    <div>
-                        <a href="#" class="text-green-500 hover:text-green-600 font-medium">Join</a>
-                    </div>
-                </div>
-
-                <!-- Example Lobby 2 -->
-                <div class="grid grid-cols-4 items-center px-6 py-4 hover:bg-gray-50 transition-colors">
-                    <div class="font-mono text-gray-600">#BAKER26</div>
-                    <div>2/2 players</div>
-                    <div><span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">Full</span></div>
-                    <div class="text-gray-400">Closed</div>
-                </div>
-
-                <!-- Empty State -->
-                <div class="px-6 py-8 text-center text-gray-500">
-                    No active tables available. Create one to start playing!
-                </div>
-            </div>
-        </div>
-    </div>
+<body>
 </body>
 </html>
