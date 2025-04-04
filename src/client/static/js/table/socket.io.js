@@ -1,0 +1,37 @@
+export function handle(socket, pokerTable) {
+    socket.on('connect', () => {
+        console.log('Connected')
+    });
+
+    socket.on('gameStart', () => {
+        console.log('Game startes');
+        pokerTable.startGame();
+    });
+
+    socket.on('newRound', () => {
+        console.log('New round');
+        pokerTable.newRound();
+    });
+    
+    socket.on('tableUpdate', (tableState) => {
+        console.log('Table update');
+        console.log(tableState);
+        pokerTable.update(tableState);
+    });
+
+    socket.on('privateUpdate', (privateState) => {
+        console.log('Private update');
+        pokerTable.updatePrivate(privateState);
+    });
+
+    socket.on('playersUpdate', (playersState) => {
+        console.log(playersState);
+        pokerTable.updatePlayers(playersState);
+    });
+
+    socket.on('message', (message) => {
+        console.log('Message:', message);
+        pokerTable.message(message);
+    });
+
+}
