@@ -1,6 +1,13 @@
 export function handle(socket, pokerTable) {
     socket.on('connect', () => {
         console.log('Connected')
+        socket.emit('requestNames', pokerTable.state);
+    });
+
+
+    socket.on('updateNames', (data) => {
+        console.log('players names: ', data.players)
+        pokerTable.updateNames(data.players);
     });
 
     socket.on('gameStart', () => {

@@ -6,38 +6,46 @@ const Action = {
     CHECK: 'check'
 }
 
+const noms = "23456789TJQKA";
+const suits = {
+    'h': '♥',
+    'd': '♦',
+    's': '♠',
+    'c': '♣'
+};
+
+const card = {
+    view: function(vnode) {
+        const c = vnode.attrs.card;
+        if (c == undefined || c === '' || c.length == 1) {
+            return m('div', {class: 'player-card'});
+        }
+        console.assert(c.length == 2);
+        const nom = c[0];
+        const suit = c[1];
+
+        const content = nom + suits[suit] || '';
+        const black = suit == 'c' || suit == 's';
+        return m('div', {class: `player-card ${black? 'text-black' : 'text-red-500'}`}, content)
+    }
+}
+
 export const hero = {
     view: function(vnode) {
         const heroName = vnode.attrs.heroName;
         console.assert(heroName != undefined, 'heroName expected');
+
+        const hero = vnode.attrs.hero;
+        console.assert(hero != undefined, 'hero expected');
         return m('#hero', {class: 'player-area absolute -bottom-16 center-x text-center'}, [
             m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
                 m('#hero-name', {class: 'text-xs text-gray-600'}, heroName),
                 m('div', {class: 'flex space-x-2 mt-1'}, [
-                    m('div', {class: 'player-card'}), 
-                    m('div', {class: 'player-card'})
+                    m(card, {card: hero.cards[0]}),
+                    m(card, {card: hero.cards[1]})
                 ]),
-                m('#hero-stack', {class: 'text-xs text-gray-600'}, '100')
+                m('#hero-stack', {class: 'text-xs text-gray-600'}, hero.stack)
             ])
-        ])
-    }
-}
-
-export const pokerTable = {
-    view: function(vnode) {
-        const gameState = vnode.attrs.gameState;
-        console.assert(gameState, 'gameState expected');
-        console.assert(gameState.villainBet != undefined, 'gameState.villainBet expected');
-        console.assert(gameState.heroBet != undefined, 'gameState.heroBet expected');
-        console.assert(gameState.pot != undefined, 'gameState.pot expected');
-        console.assert(gameState.board != undefined, 'gameState.board expected');
-
-        return m('div', {class: 'poker-table'}, [
-            m('div#villain-bet', {class: 'bet-placed-villain'}, gameState.villainBet),
-            m('#community-cards', {class: 'board'}, gameState.board),
-            m('div#pot-display', {class: 'pot mt-8'}, 'Pot: ' + gameState.pot),
-            m('div#dealer-button', {class: 'dealer-button'}, 'D'), // TODO move dealer
-            m('div#hero-bet', {class: 'bet-placed-hero'}, gameState.heroBet)
         ])
     }
 }
@@ -47,19 +55,41 @@ export const villain = {
         const villainName = vnode.attrs.villainName;
         console.assert(villainName != undefined, 'villainName expected');
 
+        const villain = vnode.attrs.villain;
+        console.assert(villain != undefined, 'villain expected');
         return m('#villain', {class: 'player-area absolute -top-16 center-x text-center'}, [
             m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
                 m('#villain-name', {class: 'text-xs text-gray-600'}, villainName),
                 m('div', {class: 'flex space-x-2 mt-1'}, [
-                    m('div', {class: 'player-card'}),
-                    m('div', {class: 'player-card'})
+                    m(card, {card: villain.cards[0]}),
+                    m(card, {card: villain.cards[1]})
                 ]),
-                m('#villain-stack', {class: 'text-xs text-gray-600'}, '200')
+                m('#villain-stack', {class: 'text-xs text-gray-600'}, villain.stack)
             ])
         ])
     }
 }
 
+export const pokerTable = {
+    view: function(vnode) {
+        const gameState = vnode.attrs.gameState;
+        console.assert(gameState, 'gameState expected');
+        console.assert(gameState.villain.bet != undefined, 'gameState.villain.bet expected');
+        console.assert(gameState.hero.bet != undefined, 'gameState.hero.bet expected');
+        console.assert(gameState.pot != undefined, 'gameState.pot expected');
+        console.assert(gameState.board != undefined, 'gameState.board expected');
+
+        return m('div', {class: 'poker-table'}, [
+            m('div#villain-bet', {class: 'bet-placed-villain'}, gameState.villain.bet),
+            m('#community-cards', {class: 'board'}, gameState.board.map(
+                (c) => m(card, {card: c})
+            )),
+            m('div#pot-display', {class: 'pot mt-8'}, 'Pot: ' + gameState.pot),
+            m('div#dealer-button', {class: 'dealer-button'}, 'D'), // TODO move dealer
+            m('div#hero-bet', {class: 'bet-placed-hero'}, gameState.hero.bet)
+        ])
+    }
+}
 
 export const actions = {
     oninit(vnode) {
@@ -102,7 +132,7 @@ export const actions = {
         const gameState = vnode.attrs.gameState;
         console.assert(gameState, 'gameState expected');
 
-        const raisable = gameState.round.maxBet != 0;
+        const raisable = gameState.maxBet != 0;
 
         return m('#actions', [
             m('button#btn-fold', {onclick: () => this.act(Action.FOLD)}, 'Fold'),
@@ -114,8 +144,9 @@ export const actions = {
                     placeholder: 'Amount',
                     oninput: (e) => this.validateBetAmount(e.target.value, gameState)
                 }),
-                raisable? m('button#btn-raise', {onclick: () => {this.act(Action.RAISE, this.getBetAmount());}}, 'Raise') :
-                m('button#btn-bet', {onclick: () => {this.act(Action.BET, this.getBetAmount())}}, 'Bet')
+                raisable? 
+                    m('button#btn-raise', {onclick: () => {this.act(Action.RAISE, this.getBetAmount());}}, 'Raise') :
+                    m('button#btn-bet', {onclick: () => {this.act(Action.BET, this.getBetAmount())}}, 'Bet')
             ])
         ])
     }
@@ -125,20 +156,25 @@ export const startGame = {
     view: function(vnode) {
         const state = vnode.attrs.state;
         console.assert(state, 'state expected');
+
         const socket = vnode.attrs.socket;
         console.assert(socket, 'socket expected');
 
         console.assert(state.tableId, 'state.tableId expected');
         console.assert(state.heroName, 'state.heroName expected');
 
+        const canStart = state.canStart;
+
         return m('div', {class: 'flex justify-center mt-24'}, [
-            m('button#start-table', {class: 'btn-start'}, {
+            m('button#start-table', {
+                class: `btn-primary medium ${canStart? '': 'disabled'}`,
                 onclick: () => {
                     if (state.canStart) {
-                        socket.emit('start_table', {
-                            tableId: this.state.tableId,
-                            heroName: this.state.heroName
+                        socket.emit('startTable', {
+                            tableId: state.tableId,
+                            heroName: state.heroName
                         });
+                        state.gameStarted = true;
                     }
                 }
             }, 'Start table')

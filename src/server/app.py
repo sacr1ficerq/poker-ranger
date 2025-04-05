@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import uuid
@@ -6,7 +6,7 @@ import uuid
 from pokergame import Table, Action
 
 app = Flask(
-  __name__, 
+  __name__,
   static_folder='../client/static/',
   template_folder='../client/templates/'
 )
@@ -26,49 +26,10 @@ def generate_id():
     return table_id
 
 
+# Routes
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
-# interactions with server before table starts
-@socketio.on('request_tables')
-def send_available_tables():
-    res = list(map(lambda id:
-                   {'players': len(tables[id].players),
-                    'id': id},
-                   tables.keys()))
-    emit('update_tables', {'tables': res})
-
-
-@socketio.on('request_private')
-def send_private(data):
-    sid = request.sid
-    table_id = data.get('table_id')
-    assert table_id, 'no table_id'
-    if table_id not in tables:
-        print(f'{table_id} not found in tables')
-        return redirect(url_for('index'))
-
-    assert table_id in tables, f'table {table_id} inaccesible'
-    table = tables[table_id]
-
-    hero_name = data.get('hero_name')
-    assert hero_name, 'no hero_name'
-
-    stack = data.get('stack', 200)
-    assert stack >= 0, 'stack cant be negative'
-
-    res = table.private_state(hero_name)
-    emit('private_update', res, room=sid)
-
-
-def deal(table_id):
-    assert table_id in tables
-    table = tables[table_id]
-    for player in table.players:
-        res = table.private_state(player.name)
-        emit('private_update', res, room=player.id)
 
 
 # TODO: create table as logged in player with username and table admin capabilities
@@ -91,11 +52,36 @@ def join_table(table_id):
     return render_template('table.html', table_id=table_id)
 
 
-@socketio.on('join')
-def on_join(data):
+# socketio events
+@socketio.on('requestTables')
+def send_available_tables():
+    res = list(map(lambda id:
+                   {'players': len(tables[id].players),
+                    'id': id},
+                   tables.keys()))
+    emit('updateTables', {'tables': res})
+
+
+@socketio.on('requestNames')
+def send_players(data):
+    table_id = data.get('tableId')
+    assert table_id, 'no tableId'
+    if table_id not in tables:
+        print(f'{table_id} not found in tables')
+
+    assert table_id in tables, f'table {table_id} inaccesible'
+    table = tables[table_id]
+
+    res = list(map(lambda p: p.name, table.players))
+    print('players:', res)
+    emit('updateNames', {'players': res})
+
+
+@socketio.on('requestPrivate')
+def send_private(data):
     sid = request.sid
-    table_id = data.get('table_id')
-    assert table_id, 'no table_id'
+    table_id = data.get('tableId')
+    assert table_id is not None, 'no tableId'
     if table_id not in tables:
         print(f'{table_id} not found in tables')
         return redirect(url_for('index'))
@@ -103,8 +89,38 @@ def on_join(data):
     assert table_id in tables, f'table {table_id} inaccesible'
     table = tables[table_id]
 
-    hero_name = data.get('hero_name')
-    assert hero_name is not None, 'no hero_name'
+    hero_name = data.get('heroName')
+    assert hero_name, 'no heroName'
+
+    stack = data.get('stack', 200)
+    assert stack >= 0, 'stack cant be negative'
+
+    res = table.private_state(hero_name)
+    emit('privateUpdate', res, room=sid)
+
+
+def deal(table_id):
+    assert table_id in tables
+    table = tables[table_id]
+    for player in table.players:
+        res = table.private_state(player.name)
+        emit('privateUpdate', res, room=player.id)
+
+
+@socketio.on('join')
+def on_join(data):
+    sid = request.sid
+    table_id = data.get('tableId')
+    assert table_id, 'no tableId'
+    if table_id not in tables:
+        print(f'{table_id} not found in tables')
+        return redirect(url_for('index'))
+
+    assert table_id in tables, f'table {table_id} inaccesible'
+    table = tables[table_id]
+
+    hero_name = data.get('heroName')
+    assert hero_name is not None, 'no heroName'
 
     stack = data.get('stack', 200)
     assert stack >= 0, 'stack cant be negative'
@@ -116,7 +132,7 @@ def on_join(data):
     player_states = [{'name': player.name, 'stack': player.stack}
                      for player in table.players]
     print('player states:', player_states)
-    emit('players_update', player_states, room=table_id)
+    emit('playersUpdate', player_states, room=table_id)
 
 
 @socketio.on('disconnect')
@@ -129,31 +145,32 @@ def handle_disconnect():
                 table.remove_player(hero_name)
                 leave_room(table_id)
                 emit('message', f'{hero_name} has disconnected', room=table_id)
-                emit('players_update', table.state()['players'], room=table_id)
+                emit('playersUpdate', table.state()['players'], room=table_id)
 
                 if len(table.players) == 0:
                     tables.pop(table_id, None)
+                    assert table_id not in tables
                     print(f"Table {table_id} removed (no players left)")
                 break
 
 
-@socketio.on('start_table')
+@socketio.on('startTable')
 def on_start(data):
-    table_id = data.get('table_id')
-    assert table_id, 'no table_id'
-    assert table_id in tables, 'table_id now found in tables'
-    emit('game_start', room=table_id)
+    table_id = data.get('tableId')
+    assert table_id, 'no tableId'
+    assert table_id in tables, f'{table_id} not found in tables'
+    emit('gameStart', room=table_id)
     start_round(data)
 
 
-@socketio.on('start_round')
+@socketio.on('startRound')
 def start_round(data):
-    table_id = data.get('table_id')
-    assert table_id, 'no table_id'
-    assert table_id in tables, 'table_id now found in tables'
+    table_id = data.get('tableId')
+    assert table_id, 'no tableId'
+    assert table_id in tables, 'tableId not found in tables'
 
-    hero_name = data.get('hero_name')
-    assert hero_name, 'no hero_name'
+    hero_name = data.get('heroName')
+    assert hero_name, 'no heroName'
 
     min_players = 2
     max_players = 2
@@ -169,21 +186,21 @@ def start_round(data):
     print(table.state())
     deal(table_id)
 
-    emit('new_round', room=table_id)
-    emit('table_update', table.state(), room=table_id)
+    emit('newRound', room=table_id)
+    emit('tableUpdate', table.state(), room=table_id)
 
 
 @socketio.on('action')
 def on_action(data):
-    table_id = data.get('table_id')
-    assert table_id, 'no table_id'
+    table_id = data.get('tableId')
+    assert table_id, 'no tableId'
     assert table_id in tables
 
-    hero_name = data.get('hero_name')
-    assert hero_name, 'no hero_name'
+    hero_name = data.get('heroName')
+    assert hero_name, 'no heroName'
 
     amount = data.get('amount')
-    assert amount is not None, 'no bet amount'
+    assert amount is not None, 'no amount'
 
     try:
         amount = float(amount)
@@ -195,17 +212,17 @@ def on_action(data):
     action = data.get('action')
     assert action, 'no action'
 
-    d = {'BET': Action.BET,
-         'CHECK': Action.CHECK,
-         'CALL': Action.CALL,
-         'RAISE': Action.RAISE,
-         'FOLD': Action.FOLD}
+    d = {'bet': Action.BET,
+         'check': Action.CHECK,
+         'call': Action.CALL,
+         'raise': Action.RAISE,
+         'fold': Action.FOLD}
 
     table = tables[table_id]
     print(hero_name, action, amount)
 
     table.act(d[action], hero_name, amount)
-    emit('table_update', table.state(), room=table_id)
+    emit('tableUpdate', table.state(), room=table_id)
 
 
 if __name__ == '__main__':

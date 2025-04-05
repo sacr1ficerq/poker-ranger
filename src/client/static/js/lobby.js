@@ -11,11 +11,11 @@ const Lobby = {
     },
 
     oninit: () => {
-        Lobby.socket.on('update_tables', (data) => {
+        Lobby.socket.on('updateTables', (data) => {
             Lobby.renderTables(data.tables);
         });
-        Lobby.socket.emit('request_tables');
-        setInterval(() => Lobby.socket.emit('request_tables'), 10000);
+        Lobby.socket.emit('requestTables');
+        setInterval(() => Lobby.socket.emit('requestTables'), 10000);
     },
 
     view: () => {
@@ -25,7 +25,7 @@ const Lobby = {
         ]);
 
         const refresh = () => {
-            Lobby.socket.emit('request_tables');
+            Lobby.socket.emit('requestTables');
             console.log('Refreshing lobby...');
         }
 
