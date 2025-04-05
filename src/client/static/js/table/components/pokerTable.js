@@ -37,7 +37,10 @@ export const hero = {
 
         const hero = vnode.attrs.hero;
         console.assert(hero != undefined, 'hero expected');
-        return m('#hero', {class: 'player-area absolute -bottom-16 center-x text-center'}, [
+        const cards = hero.cards;
+        console.assert(cards != undefined, 'hero.cards expected');
+        const classes = hero.folded? 'folded': hero.winning? 'winning': hero.acting? 'acting': hero.allIn? 'all-in': '';
+        return m('#hero', {class: 'player-area absolute -bottom-16 center-x text-center ' + classes}, [
             m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
                 m('#hero-name', {class: 'text-xs text-gray-600'}, heroName),
                 m('div', {class: 'flex space-x-2 mt-1'}, [
@@ -57,12 +60,15 @@ export const villain = {
 
         const villain = vnode.attrs.villain;
         console.assert(villain != undefined, 'villain expected');
-        return m('#villain', {class: 'player-area absolute -top-16 center-x text-center'}, [
+        const cards = villain.cards;
+        console.assert(cards != undefined, 'villain.cards expected');
+        const classes = villain.folded? 'folded': villain.winning? 'winning': villain.acting? 'acting': villain.allIn? 'all-in': '';
+        return m('#villain', {class: 'player-area absolute -top-16 center-x text-center ' + classes}, [
             m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
                 m('#villain-name', {class: 'text-xs text-gray-600'}, villainName),
                 m('div', {class: 'flex space-x-2 mt-1'}, [
-                    m(card, {card: villain.cards[0]}),
-                    m(card, {card: villain.cards[1]})
+                    m(card, {card: cards[0]}),
+                    m(card, {card: cards[1]})
                 ]),
                 m('#villain-stack', {class: 'text-xs text-gray-600'}, villain.stack)
             ])
@@ -93,12 +99,17 @@ export const pokerTable = {
 
 export const actions = {
     oninit(vnode) {
+        this.valid = false;
         this.state = vnode.attrs.state;
         console.assert(this.state, 'state expected');
         this.socket = vnode.attrs.socket;
         console.assert(this.socket, 'socket expected');
     },
     act: function(action, amount = 0.0) {
+        if ((action == Action.BET || action == Action.RAISE) && !this.valid) {
+            console.log('invalid sizing');
+            return;
+        }
         const req = { 
             tableId: this.state.tableId, 
             amount: amount, 
@@ -108,20 +119,10 @@ export const actions = {
         this.socket.emit('action', req);
     },
     validateBetAmount: function(amount, gameState) {
-        console.assert(gameState.minBet != undefined, 'gameState.minBet expected');
-        console.assert(gameState.maxBet != undefined, 'gameState.maxBet expected');
-        const betBtn = document.getElementById('bet-btn');
-        const raiseBtn = document.getElementById('raise-btn');
-        console.assert(betBtn, 'no bet-btn element');
-        console.assert(raiseBtn, 'no raise-btn element');
-
-        if (amount < gameState.minBet || amount > gameState.maxBet) {
-            betBtn.classList.add('disabled');
-            raiseBtn.classList.add('disabled');
-        } else {
-            betBtn.classList.remove('disabled');
-            raiseBtn.classList.remove('disabled');
-        }
+        console.assert(gameState.minBetAmount != undefined, 'gameState.minBetAmount expected');
+        console.assert(gameState.maxBetAmount != undefined, 'gameState.maxBetAmount expected');
+        this.valid = amount >= gameState.minBetAmount && amount <= gameState.maxBetAmount;
+        m.redraw();
     },
     getBetAmount: function() {
         const betAmount = document.getElementById('bet-amount');
@@ -132,21 +133,33 @@ export const actions = {
         const gameState = vnode.attrs.gameState;
         console.assert(gameState, 'gameState expected');
 
+        console.assert(gameState.maxBet != undefined, 'gameState.maxBet expected');
+        console.assert(gameState.hero.bet != undefined, 'gameState.hero.bet expected');
         const raisable = gameState.maxBet != 0;
+        const callable = gameState.maxBet != 0 && gameState.maxBet != gameState.hero.bet;
+        console.log(gameState.maxBet, gameState.hero.bet);
+        const delta = gameState.maxBet - gameState.hero.bet;
 
         return m('#actions', [
             m('button#btn-fold', {onclick: () => this.act(Action.FOLD)}, 'Fold'),
-            m('button#btn-check', {onclick: () => this.act(Action.CHECK)}, 'Check'),
-            m('button#btn-call', {class: 'hidden', onclick: () => this.act(Action.CALL)}, 'Call'),
+            callable? 
+                m('button#btn-call', {onclick: () => this.act(Action.CALL, delta)}, 'Call'):
+                m('button#btn-check', {onclick: () => this.act(Action.CHECK)}, 'Check'),
             m('div', {class: 'flex space-x-2'}, [
                 m('input#bet-amount', {
                     type: 'number',
                     placeholder: 'Amount',
-                    oninput: (e) => this.validateBetAmount(e.target.value, gameState)
+                    oninput: (e) => {
+                        this.validateBetAmount(e.target.value, gameState);
+                    }
                 }),
                 raisable? 
-                    m('button#btn-raise', {onclick: () => {this.act(Action.RAISE, this.getBetAmount());}}, 'Raise') :
-                    m('button#btn-bet', {onclick: () => {this.act(Action.BET, this.getBetAmount())}}, 'Bet')
+                    m('button#btn-raise', {
+                        class: this.valid? '': 'disabled',
+                        onclick: () => {this.act(Action.RAISE, this.getBetAmount());}}, 'Raise') :
+                    m('button#btn-bet', {
+                        class: this.valid? '': 'disabled',
+                        onclick: () => {this.act(Action.BET, this.getBetAmount())}}, 'Bet')
             ])
         ])
     }
@@ -169,12 +182,14 @@ export const startGame = {
             m('button#start-table', {
                 class: `btn-primary medium ${canStart? '': 'disabled'}`,
                 onclick: () => {
-                    if (state.canStart) {
+                    if (canStart) {
                         socket.emit('startTable', {
                             tableId: state.tableId,
                             heroName: state.heroName
                         });
                         state.gameStarted = true;
+                    } else {
+                        console.log('cant start');
                     }
                 }
             }, 'Start table')

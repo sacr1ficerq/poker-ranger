@@ -147,6 +147,7 @@ def handle_disconnect():
                 emit('message', f'{hero_name} has disconnected', room=table_id)
                 emit('playersUpdate', table.state()['players'], room=table_id)
 
+                print('players: ', table.players)
                 if len(table.players) == 0:
                     tables.pop(table_id, None)
                     assert table_id not in tables
@@ -159,7 +160,14 @@ def on_start(data):
     table_id = data.get('tableId')
     assert table_id, 'no tableId'
     assert table_id in tables, f'{table_id} not found in tables'
+    table = tables[table_id]
     emit('gameStart', room=table_id)
+
+    table.start_game()
+    print(table.state())
+
+    emit('newRound', room=table_id)
+    emit('tableUpdate', table.state(), room=table_id)
     start_round(data)
 
 
@@ -184,9 +192,9 @@ def start_round(data):
     table.new_round()
     # emit('table_started', table.state(hero_name), room=table_id)
     print(table.state())
-    deal(table_id)
 
     emit('newRound', room=table_id)
+    deal(table_id)
     emit('tableUpdate', table.state(), room=table_id)
 
 

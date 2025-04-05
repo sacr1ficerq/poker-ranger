@@ -123,7 +123,7 @@ button {
 }
 
 .winning {
-    @apply border-e-teal-500 rounded-xl border-2;
+    @apply border-teal-500 rounded-xl border-2;
 }
 
 .all-in {

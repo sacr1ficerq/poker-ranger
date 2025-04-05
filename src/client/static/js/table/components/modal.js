@@ -33,6 +33,10 @@ const usernameForm = {
         return m('form#username-form', {
             onsubmit: (e) => {
                 e.preventDefault();
+                if (!this.valid) {
+                    console.log('invalid username');
+                    return;
+                }
                 const username = document.getElementById('username').value.trim();
                 console.assert(username != undefined, 'username element undefined');
                 this.submit(username, state, socket);

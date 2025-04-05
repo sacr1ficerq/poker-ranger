@@ -1275,7 +1275,7 @@ button {
   border-radius: 0.75rem;
   border-width: 2px;
   --tw-border-opacity: 1;
-  border-inline-end-color: rgb(20 184 166 / var(--tw-border-opacity, 1));
+  border-color: rgb(20 184 166 / var(--tw-border-opacity, 1));
 }
 
 .all-in {

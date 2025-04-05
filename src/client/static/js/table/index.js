@@ -135,25 +135,37 @@ export const PokerTable = {
 
         if (tableState.round.roundEnded) {
             if (tableState.round.street == 'showdown') {
-                const villain = tableState.players.find(p => p.name === this.state.villainName);
-                this.gameState.villain.cards = villain.cards
+                const villain = tableState.round.players.find(p => p.name === this.state.villainName);
+                this.gameState.villain.cards = villain.cards;
             } 
-            this.gameState.hero.win = tableState.round.winners.find(p => p.name === this.state.heroName);
-            this.gameState.villain.win = tableState.round.winners.find(p => p.name === this.state.villainName);
+            console.log(tableState.round.winners)
+            this.gameState.hero.winning = tableState.round.winners.find(name => name === this.state.heroName) != undefined;
+            console.log('Hero winning: ', this.gameState.hero.winning)
+            this.gameState.villain.winning = tableState.round.winners.find(name => name === this.state.villainName) != undefined;
+            console.log('Villain winning: ', this.gameState.villain.winning)
         } else {
             const actingName = tableState.round.acting;
-            this.gameState.hero.acting = actingName == this.state.heroName;
-            this.gameState.hero.acting = actingName == this.state.villainName;
+            console.assert(actingName != undefined, 'No actingName in tableState');
+            console.log('acting:', actingName);
+            this.gameState.hero.acting = actingName === this.state.heroName;
+            this.gameState.villain.acting = actingName === this.state.villainName;
+
+            this.gameState.minBetAmount = tableState.round.minBetAmount;
+            this.gameState.maxBetAmount = tableState.round.maxBetAmount;
 
             const button = tableState.button;
             console.assert(button != undefined, 'No button in tableState');
             this.gameState.button = button;
+            console.assert(tableState.round.maxBet != undefined, 'tableState.round.maxBet  expected');
+            this.gameState.maxBet = tableState.round.maxBet;
         }
+        console.log('state updated');
 
         m.redraw();
     },
     updatePrivate: function(privateState) {
         this.gameState.hero.cards = privateState.cards;
+        console.log('cards dealt: ', this.gameState.hero.cards);
         m.redraw();
     },
     updatePlayers: function(playersState) {
@@ -187,7 +199,7 @@ export const PokerTable = {
         console.assert(this.state.tableId != undefined, 'tableId is undefined');
         console.assert(this.state.heroName != undefined, 'heroName is undefined');
         console.assert(this.state.villainName != undefined, 'villainName is undefined');
-
+    
         return m('div', {class: 'bg-gray-100 h-screen'},
             m('div', {class: 'container mx-auto px-4 py-6'}, [
                 m(title, {tableId: this.state.tableId}),

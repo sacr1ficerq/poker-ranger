@@ -28,6 +28,7 @@ export function handle(socket, pokerTable) {
 
     socket.on('privateUpdate', (privateState) => {
         console.log('Private update');
+        console.log(privateState);
         pokerTable.updatePrivate(privateState);
     });
 
