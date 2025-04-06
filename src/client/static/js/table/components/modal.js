@@ -2,17 +2,6 @@ const usernameForm = {
     oninit: function() {
         this.valid = false;
     },
-    submit: function(username, state, socket) {
-        console.assert(state.heroName != undefined, 'no heroName in state');
-        console.log(state);
-        console.assert(state.tableId != undefined, 'no tableId in state');
-        state.heroName = username;
-        state.loggedIn = true;
-        socket.emit('join', { 
-            tableId: state.tableId, 
-            heroName: state.heroName 
-        });
-    },
     validateInput: function(username, villainName) {
         const submitBtn = document.getElementById('username-submit');
         console.assert(submitBtn);
@@ -22,14 +11,8 @@ const usernameForm = {
             this.valid = true;
         }
     },
-    view: function(vnode) {
-        const state = vnode.attrs.state;
-        console.assert(state, 'state expected');
-        const socket = vnode.attrs.socket;
-        console.assert(socket, 'socket expected');
-
-        const villainName = state.villainName;
-        console.assert(villainName, 'state.villainName expected');
+    view: function({attrs}) {
+        const {villainName, submit} = attrs;
         return m('form#username-form', {
             onsubmit: (e) => {
                 e.preventDefault();
@@ -39,7 +22,7 @@ const usernameForm = {
                 }
                 const username = document.getElementById('username').value.trim();
                 console.assert(username != undefined, 'username element undefined');
-                this.submit(username, state, socket);
+                submit(username);
             }
         }, [
             m('div', [
@@ -64,17 +47,13 @@ const usernameForm = {
 }
 
 export const modal = {
-    view: function(vnode) {
-        const state = vnode.attrs.state;
-        console.assert(state, 'state expected');
-        const socket = vnode.attrs.socket;
-        console.assert(socket, 'socket expected');
+    view: function({attrs}) {
         return m('#username-modal', 
             {class: 'fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10'}, [
             m('div', 
                 {class: 'bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-100'}, [
                 m('h2', {class: 'text-2xl font-light mb-4 text-gray-800'}, 'Enter Your Username'),
-                m(usernameForm, {state, socket})
+                m(usernameForm, attrs)
             ])
         ])
     }

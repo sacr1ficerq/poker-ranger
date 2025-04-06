@@ -14,10 +14,11 @@
         - Client rendering of game state (done)
         - Server routes for in game actions (done)
         - Showdown rendering (done)
+        - Rewrite frontend in mithril.js (done)
+        - Restrict users from entering with existing names (done)
+        - Render combinations on showdown (done)
         - Fix bugs
-        - Restrict users from entering with existing names
         - New round start on client
-        - Render combinations on showdown
         - Make decorator for extracting info from requests
         - Template sizings
         - flask_login
@@ -29,8 +30,11 @@
 1. Basic poker (done)
     - Public and private states (done)
     - Showdown street (done)
-    - Provide combinations on showdown
-    - Fix bugs: folds on preflop, checks on bb
-    - Add all-ins
+    - Provide combinations on showdown (done)
+    - Fix bugs: folds on preflop, checks on bb (done)
+    - Add testing (done)
+    - Add testing with Hand class e.g. line: 'r10.0cxb12.0f' hands: ... board:...
+    - Fully conver functionality with tests
+    - Fix all-ins
 2. Skewed sampling
 3. Game tree nodes

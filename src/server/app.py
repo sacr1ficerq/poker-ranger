@@ -36,8 +36,8 @@ def index():
 @app.route('/create_table')
 def create_table():
     # TODO: create tables with different stacksize/blinds/etc.
-    sb = 1
-    bb = 2
+    sb = 0.5
+    bb = 1
     table_id = generate_id()
 
     tables[table_id] = Table(table_id, sb, bb)
@@ -103,7 +103,7 @@ def deal(table_id):
     assert table_id in tables
     table = tables[table_id]
     for player in table.players:
-        res = table.private_state(player.name)
+        res = table.private_data(player.name)
         emit('privateUpdate', res, room=player.id)
 
 
@@ -145,7 +145,7 @@ def handle_disconnect():
                 table.remove_player(hero_name)
                 leave_room(table_id)
                 emit('message', f'{hero_name} has disconnected', room=table_id)
-                emit('playersUpdate', table.state()['players'], room=table_id)
+                emit('playersUpdate', table.data()['players'], room=table_id)
 
                 print('players: ', table.players)
                 if len(table.players) == 0:
@@ -164,10 +164,10 @@ def on_start(data):
     emit('gameStart', room=table_id)
 
     table.start_game()
-    print(table.state())
+    print(table.data())
 
     emit('newRound', room=table_id)
-    emit('tableUpdate', table.state(), room=table_id)
+    emit('tableUpdate', table.data(), room=table_id)
     start_round(data)
 
 
@@ -190,12 +190,12 @@ def start_round(data):
     assert n <= max_players, 'to many players'
 
     table.new_round()
-    # emit('table_started', table.state(hero_name), room=table_id)
-    print(table.state())
+    # emit('table_started', table.data(hero_name), room=table_id)
+    print(table.data())
 
     emit('newRound', room=table_id)
     deal(table_id)
-    emit('tableUpdate', table.state(), room=table_id)
+    emit('tableUpdate', table.data(), room=table_id)
 
 
 @socketio.on('action')
@@ -230,7 +230,7 @@ def on_action(data):
     print(hero_name, action, amount)
 
     table.act(d[action], hero_name, amount)
-    emit('tableUpdate', table.state(), room=table_id)
+    emit('tableUpdate', table.data(), room=table_id)
 
 
 if __name__ == '__main__':

@@ -1,218 +1,151 @@
-import { villain, hero, pokerTable, startGame, actions } from './components/pokerTable.js'
+import { TableView, title, GameStart, GameState} from './components/pokerTable.js'
+import { ActionsView, Action } from './components/actions.js'
+import { Player, VillainView, HeroView } from './components/player.js'
 import { modal } from './components/modal.js';
 import { handle } from'./socket.io.js';
 
-
-export const title = {
-    view: function(vnode) {
-        const tableId = vnode.attrs.tableId;
-        console.assert(tableId != undefined, 'tableId expected');
-        return m('div', {class: 'text-center mb-8'}, [
-            m('h1', {class: 'text-4xl font-bold text-gray-800 mb-2'}, 'POKER BAKER'),
-            m('div', {class: 'flex justify-center space-x-4 text-sm text-gray-600'},
-                m('p', ['table ID: ', m('span', {class: 'font-mono'}, tableId)])
-            )
-        ])
-    }
-};
-
-export const PokerTable = {
-    socket: null,
+const PokerTable = {
     state: {
         tableId: 'None',
-        heroName: 'Anonymous',
-        villainName: 'Anonymous',
 
+        depth: 100,
         loggedIn: false,
         gameStarted: false,
         canStart: false,
         profit: 0
     },
-    gameState: {
-        minBetAmount: 2,
-        maxBetAmount: 0,
 
-        street: 'preflop',
-
-        board: [],
-        maxBet: 0,
-        pot: 0,
-        roundEnded: false,
-        button: 0,
-
-        hero: {
-            bet: 0,
-            stack: 0,
-            folded: false,
-            win: false,
-            allIn: false,
-            acting: false,
-            cards: ['', '']
-        },
-        villain: {
-            bet: 0,
-            stack: 0,
-            folded: false,
-            win: false,
-            allIn: false,
-            acting: false,
-            cards: ['', '']
-        }
-    },
+    hero: new Player('Anon', 100),
+    villain: new Player('Anon', 100),
+    gameState: new GameState(),
     oninit: function() {
         const pathSegments = window.location.pathname.split('/');
         this.state.tableId = pathSegments[pathSegments.length - 1];
         this.socket = window.io();
+        
         handle(this.socket, this);
-    },
-    startGame: function() {
-        this.state.gameStarted = true;
-        m.redraw();
     },
     updateNames: function(names) {
         if (names.length == 1){
-            this.state.villainName = names[0];
+            this.villain.name = names[0];
         } else if (names.length > 1) {
-            console.assert(names.length > 1, 'to many players');
+            console.assert(names.length > 1, 'too many players');
         }
     },
     newRound: function() {
+        console.log('new round');
         this.state.gameStarted = true;
-        this.gameState = {
-            minBetAmount: 2,
-            maxBetAmount: 0,
 
-            street: 'preflop',
-
-            board: [],
-            maxBet: 0,
-            pot: 0,
-            roundEnded: false,
-            button: 0,
-
-            hero: {
-                bet: 0,
-                stack: 100,
-                folded: false,
-                win: false,
-                allIn: false,
-                acting: false,
-                cards: ['', '']
-            },
-            villain: {
-                bet: 0,
-                stack: 100,
-                folded: false,
-                win: false,
-                allIn: false,
-                acting: false,
-                cards: ['', '']
-            }
-        };
+        this.gameState.newRound();
+        this.hero.newRound();
+        this.villain.newRound();
         m.redraw();
         // Add animation of dealing cards and button move
     },
     update: function(tableState) {
         this.gameState.button = tableState.button;
 
-        const hero = tableState.players.find(p => p.name === this.state.heroName);
+        const hero = tableState.players.find(p => p.name === this.hero.name);
         console.assert(hero != undefined, 'No hero found in players');
-        this.gameState.hero.bet = hero.bet;
-        this.gameState.hero.stack = hero.stack;
-        this.gameState.hero.folded = hero.folded != 0;
-        this.gameState.hero.allIn = hero.allIn != 0;
+        this.hero.update(hero);
 
-        const villain = tableState.players.find(p => p.name === this.state.villainName);
+        const villain = tableState.players.find(p => p.name === this.villain.name);
         console.assert(villain != undefined, 'No villain found in players');
-        this.gameState.villain.bet = villain.bet;
-        this.gameState.villain.stack = villain.stack;
-        this.gameState.villain.folded = villain.folded != 0;
-        this.gameState.villain.allIn = villain.allIn != 0;
-
-        this.gameState.board = tableState.round.board;
-        this.gameState.street = tableState.round.street;
-        this.gameState.pot = tableState.round.pot;
-
-        if (tableState.round.roundEnded) {
-            if (tableState.round.street == 'showdown') {
-                const villain = tableState.round.players.find(p => p.name === this.state.villainName);
-                this.gameState.villain.cards = villain.cards;
-            } 
-            console.log(tableState.round.winners)
-            this.gameState.hero.winning = tableState.round.winners.find(name => name === this.state.heroName) != undefined;
-            console.log('Hero winning: ', this.gameState.hero.winning)
-            this.gameState.villain.winning = tableState.round.winners.find(name => name === this.state.villainName) != undefined;
-            console.log('Villain winning: ', this.gameState.villain.winning)
-        } else {
-            const actingName = tableState.round.acting;
-            console.assert(actingName != undefined, 'No actingName in tableState');
-            console.log('acting:', actingName);
-            this.gameState.hero.acting = actingName === this.state.heroName;
-            this.gameState.villain.acting = actingName === this.state.villainName;
-
-            this.gameState.minBetAmount = tableState.round.minBetAmount;
-            this.gameState.maxBetAmount = tableState.round.maxBetAmount;
-
-            const button = tableState.button;
-            console.assert(button != undefined, 'No button in tableState');
-            this.gameState.button = button;
-            console.assert(tableState.round.maxBet != undefined, 'tableState.round.maxBet  expected');
-            this.gameState.maxBet = tableState.round.maxBet;
-        }
+        this.villain.update(villain);
+        
+        this.gameState.update(tableState.round);
         console.log('state updated');
 
         m.redraw();
     },
     updatePrivate: function(privateState) {
-        this.gameState.hero.cards = privateState.cards;
-        console.log('cards dealt: ', this.gameState.hero.cards);
+        this.hero.update(privateState);
+        console.log('private state: ', privateState);
+        console.log('cards dealt: ', this.hero.cards);
         m.redraw();
     },
     updatePlayers: function(playersState) {
-        this.newRound();
-        this.state.gameStarted = false;
-        console.log(playersState);
-        const hero = playersState.find(p => p.name === this.state.heroName);
-        console.assert(hero != undefined, `no ${this.state.heroName} in` + playersState);
+        // function for getting players names after villain or hero sits down
+        const hero = playersState.find(p => p.name === this.hero.name);
+        console.assert(hero != undefined, `no ${this.hero.name} in` + playersState);
         
-        this.gameState.hero.stack = hero.stack;
+        this.hero.update(hero);
 
-        const villain = playersState.find(p => p.name != this.state.heroName);
+        const villain = playersState.find(p => p.name != this.hero.name);
         if (villain) {
-            this.gameState.villain.stack = villain.stack;
-            this.state.villainName = villain.name;
+            this.villain.update(villain);
+        }
+        const n = playersState.length;
+        if (n == 2) {
             this.state.canStart = true;
         }
-        
         m.redraw();
     },
     message: function(msg) {
 
     },
+    submit: function(username) {
+        this.hero.updateName(username);
+        this.state.loggedIn = true;
+        this.socket.emit('join', { 
+            tableId: this.state.tableId, 
+            heroName: this.hero.name 
+        });
+        m.redraw();
+    },
+    startGame: function (){
+        if (this.state.gameStarted) return;
+        this.state.gameStarted = true;
+        if (this.state.canStart) {
+            this.socket.emit('startTable', {
+                tableId: this.state.tableId,
+                heroName: this.hero.name
+            });
+            this.state.gameStarted = true;
+        } else {
+            console.log('cant start');
+        }
+        m.redraw();
+    },
+    act: function(action, amount=0.0, valid=true) {
+        if ((action == Action.BET || action == Action.RAISE) && !valid) {
+            console.log('invalid sizing');
+            return;
+        }
+        const req = { 
+            tableId: this.state.tableId, 
+            amount: amount, 
+            heroName: this.hero.name, 
+            action: action
+        };
+        console.log('acting: ', req);
+        this.socket.emit('action', req);
+        m.redraw();
+    },
     view: function(vnode) {
-        console.assert(this.state != undefined && this.state != null);
-        console.assert(this.socket != undefined);
-        console.assert(this.gameState != undefined);
-
-        console.assert(this.state.loggedIn != undefined, 'loggedId is undefined');
-        console.assert(this.state.gameStarted != undefined, 'gameStarted is undefined');
-        console.assert(this.state.tableId != undefined, 'tableId is undefined');
-        console.assert(this.state.heroName != undefined, 'heroName is undefined');
-        console.assert(this.state.villainName != undefined, 'villainName is undefined');
-    
+        console.log('game state: ', this.gameState)
         return m('div', {class: 'bg-gray-100 h-screen'},
             m('div', {class: 'container mx-auto px-4 py-6'}, [
                 m(title, {tableId: this.state.tableId}),
-                !this.state.loggedIn && m(modal, {state: this.state, socket: this.socket}),
+                !this.state.loggedIn && m(modal, {
+                    villainName: 
+                    this.villain.name, 
+                    submit: (username) => this.submit(username)}),
                 // Game Table
                 m('div', {class: 'relative max-w-2xl mx-auto mb-8 mt-20'}, [
-                    m(villain, {villainName: this.state.villainName, villain: this.gameState.villain}),
-                    m(pokerTable, {gameState: this.gameState}),
-                    m(hero, {heroName: this.state.heroName, hero: this.gameState.hero})
+                    m(VillainView, {villain: this.villain}),
+                    m(TableView, {gameState: this.gameState, heroBet: this.hero.bet, villainBet: this.villain.bet}),
+                    m(HeroView, {hero: this.hero})
                 ]),
-                this.state.gameStarted && this.gameState.hero.acting && 
-                    m(actions, {gameState: this.gameState, state: this.state, socket: this.socket}),
-                !this.state.gameStarted && m(startGame, {state: this.state, socket: this.socket})
+                this.state.gameStarted && this.hero.state == 'acting' && 
+                    m(ActionsView, {
+                        gameState: this.gameState, 
+                        act: (action, amount=0.0, valid=true) => this.act(action, amount, valid),
+                        heroBet: this.hero.bet
+                    }),
+                !this.state.gameStarted && m(GameStart, {
+                    startGame: () => this.startGame(),
+                    canStart: this.state.canStart})
             ])
         )
     },

@@ -4,9 +4,8 @@ export function handle(socket, pokerTable) {
         socket.emit('requestNames', pokerTable.state);
     });
 
-
     socket.on('updateNames', (data) => {
-        console.log('players names: ', data.players)
+        console.log('Players names: ', data.players)
         pokerTable.updateNames(data.players);
     });
 
@@ -21,18 +20,19 @@ export function handle(socket, pokerTable) {
     });
     
     socket.on('tableUpdate', (tableState) => {
-        console.log('Table update');
+        console.log('Table update:');
         console.log(tableState);
         pokerTable.update(tableState);
     });
 
     socket.on('privateUpdate', (privateState) => {
-        console.log('Private update');
+        console.log('Private update:');
         console.log(privateState);
         pokerTable.updatePrivate(privateState);
     });
 
     socket.on('playersUpdate', (playersState) => {
+        console.log('Players update:');
         console.log(playersState);
         pokerTable.updatePlayers(playersState);
     });
