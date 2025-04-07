@@ -9,9 +9,9 @@ export function handle(socket, pokerTable) {
         pokerTable.updateNames(data.players);
     });
 
-    socket.on('gameStart', () => {
-        console.log('Game startes');
-        pokerTable.startGame();
+    socket.on('gameStarted', () => {
+        console.log('Game started');
+        pokerTable.gameStarted();
     });
 
     socket.on('newRound', () => {

@@ -94,6 +94,7 @@ const PokerTable = {
         m.redraw();
     },
     startGame: function (){
+        console.log('Starting game'); 
         if (this.state.gameStarted) return;
         this.state.gameStarted = true;
         if (this.state.canStart) {
@@ -107,8 +108,13 @@ const PokerTable = {
         }
         m.redraw();
     },
+    gameStarted: function (){
+        this.state.gameStarted = true;
+        m.redraw();
+    },
     startRound : function() {
-        console.log('New round starts');
+        console.log('Starting new round');
+        console.assert(this.gameState.roundEnded, 'Round not ended');
         this.socket.emit('startRound', {tableId: this.state.tableId, heroName: this.hero.name});
     },
     act: function(action, amount=0.0, valid=true) {

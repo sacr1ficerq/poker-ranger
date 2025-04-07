@@ -161,14 +161,14 @@ def on_start(data):
     assert table_id, 'no tableId'
     assert table_id in tables, f'{table_id} not found in tables'
     table = tables[table_id]
-    emit('gameStart', room=table_id)
+    emit('gameStarted', room=table_id)
 
     table.start_game()
     print(table.data())
 
     emit('newRound', room=table_id)
+    deal(table_id)
     emit('tableUpdate', table.data(), room=table_id)
-    start_round(data)
 
 
 @socketio.on('startRound')
