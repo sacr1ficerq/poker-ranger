@@ -11,8 +11,8 @@ export class GameState {
         this.pot = 0;
         this.button = 0;
 
-        this._roundEnded = false;
-        this._maxBet = 0;
+        this.roundEnded = false;
+        this.maxBet = 0;
     }
 
     newRound() {
@@ -24,7 +24,7 @@ export class GameState {
         this.pot = 0;
         this.button = 1 - this.button;
 
-        this._roundEnded = false;
+        this.roundEnded = false;
         this.maxBet = 0;
     }
 
@@ -34,7 +34,7 @@ export class GameState {
         this.pot = RoundData.pot
         this.maxBetAmount = RoundData.maxBetAmount
         this.minBetAmount = RoundData.minBetAmount
-        this._roundEnded = RoundData.roundEnded
+        this.roundEnded = RoundData.roundEnded
         this.maxBet = RoundData.maxBet
     }
 }
@@ -80,6 +80,21 @@ export const GameStart = {
                     startGame();
                 }
             }, 'Start table')
+        ])
+    }
+}
+
+export const RoundStart = {
+    view: function({attrs}) {
+        const {startRound} = attrs;
+
+        return m('div', {class: 'flex justify-center mt-24'}, [
+            m('button#start-round', {
+                class: 'btn-secondary medium',
+                onclick: () => {
+                    startRound();
+                }
+            }, 'New round')
         ])
     }
 }

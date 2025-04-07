@@ -6,9 +6,9 @@ import uuid
 from pokergame import Table, Action
 
 app = Flask(
-  __name__,
-  static_folder='../client/static/',
-  template_folder='../client/templates/'
+    __name__,
+    static_folder='../client/static/',
+    template_folder='../client/templates/'
 )
 
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -174,10 +174,10 @@ def on_start(data):
 @socketio.on('startRound')
 def start_round(data):
     table_id = data.get('tableId')
+    hero_name = data.get('heroName')
+
     assert table_id, 'no tableId'
     assert table_id in tables, 'tableId not found in tables'
-
-    hero_name = data.get('heroName')
     assert hero_name, 'no heroName'
 
     min_players = 2

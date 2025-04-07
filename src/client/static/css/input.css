@@ -14,6 +14,11 @@ button {
     @apply transition-colors text-white bg-blue-500 hover:bg-blue-600;
 }
 
+
+.btn-secondary {
+    @apply transition-colors text-white bg-orange-500 hover:bg-orange-600;
+}
+
 .btn-nice {
     @apply transition-colors text-white bg-green-500 hover:bg-green-600;
 }

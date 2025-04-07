@@ -1,4 +1,4 @@
-import { TableView, title, GameStart, GameState} from './components/pokerTable.js'
+import { TableView, title, GameStart, GameState, RoundStart} from './components/pokerTable.js'
 import { ActionsView, Action } from './components/actions.js'
 import { Player, VillainView, HeroView } from './components/player.js'
 import { modal } from './components/modal.js';
@@ -54,7 +54,7 @@ const PokerTable = {
         this.villain.update(villain);
         
         this.gameState.update(tableState.round);
-        console.log('state updated');
+        console.log('state updated to', tableState);
 
         m.redraw();
     },
@@ -107,6 +107,10 @@ const PokerTable = {
         }
         m.redraw();
     },
+    startRound : function() {
+        console.log('New round starts');
+        this.socket.emit('startRound', {tableId: this.state.tableId, heroName: this.hero.name});
+    },
     act: function(action, amount=0.0, valid=true) {
         if ((action == Action.BET || action == Action.RAISE) && !valid) {
             console.log('invalid sizing');
@@ -143,9 +147,12 @@ const PokerTable = {
                         act: (action, amount=0.0, valid=true) => this.act(action, amount, valid),
                         heroBet: this.hero.bet
                     }),
+                this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
+                    startRound: () => this.startRound()}),
                 !this.state.gameStarted && m(GameStart, {
                     startGame: () => this.startGame(),
                     canStart: this.state.canStart})
+                
             ])
         )
     },
