@@ -6,6 +6,29 @@ export const Action = {
     CHECK: 'check'
 }
 
+export const sizings = {
+    'preflop': [1], // 1 = 100% = 2.5bb
+    'flop': [0.25, 0.4, 0.75, 1.5],
+    'turn': [0.25, 0.4, 0.75, 1.5],
+    'river': [0.25, 0.4, 0.75, 1.5],
+}
+
+// In position single raise pot
+const sizingsIPSRP = {
+    'preflop': ['2.5bb'], // 2.5bb
+    'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
+    'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
+    'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
+}
+
+// Out of position
+const sizingsOOPSRP = {
+    'preflop': ['2.5bb'],
+    'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
+    'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
+    'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
+}
+
 export const ActionsView = {
     validateBetAmount: function(amount, minBet, maxBet) {
         this.valid = amount >= minBet && amount <= maxBet;
@@ -47,8 +70,43 @@ export const ActionsView = {
                     m('button#btn-bet', {
                         class: this.valid? '': 'disabled',
                         onclick: () => {act(Action.BET, this.getBetAmount()), this.valid}}, 'Bet')
-            ])
+            ]),
         ])
+    }
+}
+
+const Sizing = {
+    oninit: function(vnode) {
+        vnode.state.keyHandler = (e) => {
+            const k = vnode.attrs.idx + 1;
+            if (e.key === k.toString()) {
+                console.log(k + ' pressed');
+                vnode.dom.click()
+            }
+        }
+    },
+    oncreate: function(vnode) {
+        document.addEventListener('keydown', vnode.state.keyHandler)
+    },
+    onremove: function(vnode) {
+        document.removeEventListener('keydown', vnode.state.keyHandler)
+    },
+    view: function({attrs}) {
+        const {sizing, idx} = attrs;
+        const text = (sizing * 100) + '%';
+        const k = idx + 1;
+        return m('button', {class: 'sizing'}, [text, m('div', {class: 'hint'}, k)])
+    }
+}
+
+export const SizingView = {
+    view: function({attrs}) {
+
+        const {sizings, street} = attrs;
+        console.log(sizings);
+        console.assert(sizings[street] != undefined, 'wrong sizings ' + sizings[street] + ' ' + street)
+
+        return m('#sizings', sizings[street].map((sizing, idx) => m(Sizing, {sizing, idx})))
     }
 }
 
