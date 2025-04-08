@@ -32,6 +32,8 @@
 ### Game tree nodes
 
 ### Cosmetics (optional)
+- incapsulate data extraction in game_manager 
+- try/except assertion error in app.py
 - Main page with desciption and link to lobby
 - Add last action on player
 - Loading into existing disconnected player with same name
