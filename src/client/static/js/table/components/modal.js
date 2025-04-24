@@ -124,7 +124,6 @@ export const rangeModal = {
             m('#range-block', [
                 m('h2#range-hint', 'Enter Your Preflop Range'),
                 m(RangeView, attrs)
-                //m(rangeSubmit, attrs)
             ])
         ])
     }

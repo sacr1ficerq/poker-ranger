@@ -15,7 +15,7 @@ export class Player {
         this.stack = stack;
         this._depth = stack;
         this.state = PlayerState.BASE;
-        this.cards = ['', ''];
+        this.cards = [null, null];
         this.preflopRange = new Range();
     }
 
@@ -28,6 +28,7 @@ export class Player {
             this.bet = player.bet;
         }
         if (player.cards != null) {
+            console.log('card update: ', player.cards);
             this.cards = player.cards;
         }
     }
@@ -58,12 +59,13 @@ export class Player {
 export const HeroView = {
     view: function({attrs}) {
         const hero = attrs.hero;
+        console.log('rendering cards:', hero.cards);
         return m('#hero', {class: 'player-area absolute -bottom-16 center-x text-center ' + hero.state}, [
             m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
                 m('#hero-name', {class: 'text-xs text-gray-600'}, hero.name),
                 m('div', {class: 'flex space-x-2 mt-1'}, [
-                    m(card, {card: hero.cards[0]}),
-                    m(card, {card: hero.cards[1]})
+                    m(card, {key: hero.cards[0], card: hero.cards[0]}),
+                    m(card, {key: hero.cards[1], card: hero.cards[1]})
                 ]),
                 m('#hero-stack', {class: 'text-xs text-gray-600'}, hero.stack)
             ])

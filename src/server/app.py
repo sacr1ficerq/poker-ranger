@@ -100,7 +100,7 @@ def on_join(data):
     stack = data.get('stack', 100)
     assert stack >= 0, 'stack cant be negative'
 
-    preflop_range:List[List[str]] | None = data.get('preflopRange', 100)
+    preflop_range:List[List[str]] | None = data.get('preflopRange')
     assert preflop_range is not None, 'no preflopRange'
 
     game_manager.add_player(table_id, sid, name, stack, preflop_range)
@@ -132,7 +132,7 @@ def on_start(data):
     assert table_id, 'no tableId'
 
     starting_pot = data.get('startingPot')
-    assert starting_pot, 'no staringPot'
+    assert starting_pot, 'no startingPot'
 
     assert game_manager.exists(table_id), f'{table_id} not found in tables'
     emit('gameStarted', room=table_id)

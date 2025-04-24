@@ -46,9 +46,11 @@ const PokerTable = {
     update: function(tableState) {
         this.gameState.button = tableState.button;
 
+        console.log('hero before update:', this.hero);
         const hero = tableState.players.find(p => p.name === this.hero.name);
         console.assert(hero != undefined, 'No hero found in players');
         this.hero.update(hero);
+        console.log('hero updated to:', this.hero);
 
         const villain = tableState.players.find(p => p.name === this.villain.name);
         console.assert(villain != undefined, 'No villain found in players');
@@ -56,7 +58,7 @@ const PokerTable = {
         
         this.gameState.update(tableState.round);
         console.log('state updated to', tableState);
-
+        
         m.redraw();
     },
     updatePrivate: function(privateState) {
@@ -101,14 +103,16 @@ const PokerTable = {
         this.state.rangeSet = true;
         m.redraw();
     },
-    startGame: function (){
-        console.log('Starting game'); 
+    startGame: function (startingPot){
+        console.assert(startingPot != undefined);
+        console.log('Starting game with pot:', startingPot); 
         if (this.state.gameStarted) return;
         this.state.gameStarted = true;
         if (this.state.canStart) {
             this.socket.emit('startTable', {
                 tableId: this.state.tableId,
-                heroName: this.hero.name
+                heroName: this.hero.name,
+                startingPot: startingPot
             });
             this.state.gameStarted = true;
         } else {
@@ -166,7 +170,7 @@ const PokerTable = {
                 this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
                     startRound: () => this.startRound()}),
                 !this.state.gameStarted && m(GameStart, {
-                    startGame: () => this.startGame(),
+                    startGame: (pot) => this.startGame(pot),
                     canStart: this.state.canStart})
                 
             ])

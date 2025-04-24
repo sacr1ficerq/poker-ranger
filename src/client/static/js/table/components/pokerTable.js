@@ -72,14 +72,16 @@ export const TableView = {
 export const GameStart = {
     view: function({attrs}) {
         const {startGame, canStart} = attrs;
-
+        const startingPot = 6;
         return m('div', {class: 'flex justify-center mt-24'}, [
             m('button#start-table', {
                 class: `btn-primary medium ${canStart? '': 'disabled'}`,
                 onclick: () => {
-                    startGame();
+                    console.log('starting pot:', startingPot);
+                    startGame(startingPot);
                 }
-            }, 'Start table')
+            }, 'Start table'), 
+            'Input field'
         ])
     }
 }
