@@ -3,6 +3,8 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from game_manager import GameManager
 
+from typing import List
+
 
 app = Flask(
     __name__,
@@ -98,7 +100,10 @@ def on_join(data):
     stack = data.get('stack', 100)
     assert stack >= 0, 'stack cant be negative'
 
-    game_manager.add_player(table_id, sid, name, stack)
+    preflop_range:List[List[str]] | None = data.get('preflopRange', 100)
+    assert preflop_range is not None, 'no preflopRange'
+
+    game_manager.add_player(table_id, sid, name, stack, preflop_range)
     join_room(table_id)
     emit('message', f'{name} has joined the table', room=table_id)
 
@@ -111,6 +116,7 @@ def on_join(data):
 def handle_disconnect():
     id = request.sid
     table_id, player = game_manager.disconnect(id)
+    assert table_id is not None and player is not None, 'wrong id'
 
     leave_room(table_id)
     if game_manager.exists(table_id):
@@ -125,10 +131,13 @@ def on_start(data):
     table_id = data.get('tableId')
     assert table_id, 'no tableId'
 
+    starting_pot = data.get('startingPot')
+    assert starting_pot, 'no staringPot'
+
     assert game_manager.exists(table_id), f'{table_id} not found in tables'
     emit('gameStarted', room=table_id)
 
-    game_manager.start_table(table_id)
+    game_manager.start_table(table_id, starting_pot)
 
     emit('newRound', room=table_id)
     deal(table_id)

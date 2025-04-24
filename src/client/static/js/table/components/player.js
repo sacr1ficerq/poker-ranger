@@ -8,7 +8,6 @@ export const PlayerState = {
     ALLIN: 'all-in',
 }
 
-
 export class Player {
     constructor(name, stack) {
         this.name = name;
@@ -16,7 +15,8 @@ export class Player {
         this.stack = stack;
         this._depth = stack;
         this.state = PlayerState.BASE;
-        this.cards= ['', ''];
+        this.cards = ['', ''];
+        this.preflopRange = new Range();
     }
 
     update(player) {
@@ -40,6 +40,11 @@ export class Player {
     updateName(name) {
         console.log('name updated to ', name);
         this.name = name;
+    }
+
+    updatePreflopRange(preflopRange) {
+        console.log('range updated to ', preflopRange);
+        this.preflopRange = preflopRange;
     }
 
     newRound() {

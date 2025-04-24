@@ -39,23 +39,126 @@ const usernameForm = {
                 })
             ]),
             m('button#username-submit', {
-                class: `w-full bg-gray-800 text-white py-2 rounded-lg ${this.valid? '' : 'disabled'}`,
+                class: `${this.valid? '' : 'disabled'}`,
                 type: 'submit',
             }, 'Continue')
         ])
     }
 }
 
+export class RangeView {
+    oninit({attrs}) {
+        this.matrix = Array(13).fill().map(() => Array(13).fill(0));
+        this.valid = false;
+    }
+
+    validateRange() {
+        const submitBtn = document.getElementById('range-submit');
+        console.assert(submitBtn);
+        const s = this.matrix.flat().reduce((sum, cell) => sum + cell, 0);
+        console.log('sum:', s);
+        if (s == 0) {
+            this.valid = false;
+        } else {
+            this.valid = true;
+        }
+    }
+
+    view({attrs}) {
+        const {submit} = attrs;
+        const ranks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+        
+        return m('div', [
+            m('#range-grid', 
+                ranks.map((_, i) => 
+                    ranks.map((_, j) => {
+                        const prob = this.matrix[i][j];
+                        const bgColor = `hsl(120, 100%, ${100 - (prob * 50)}%)`;
+                        
+                        return m('.range-cell', {
+                            style: `background: ${bgColor};`,
+                            onclick: () => {
+                                // const newProb = prob >= 1 ? 0 : Math.min(1, prob + 0.1);
+                                const newProb = prob >= 1 ? 0 : Math.min(1, prob + 1);
+                                this.matrix[i][j] = newProb;
+                                console.log(i, j, this.matrix[i][j]);
+                                this.validateRange();
+                            }
+                        }, 
+                            i === j ? `${ranks[i]}${ranks[j]}` : 
+                            i < j ? `${ranks[i]}${ranks[j]}s` : 
+                            `${ranks[j]}${ranks[i]}o`
+                        );
+                    })
+                )
+            ), 
+            m('button#range-submit', {
+                class: `${this.valid? '' : 'disabled'}`,
+                onclick: () => {
+                    if (this.valid) {
+                        submit(this.matrix);
+                    } else {
+                        console.log('wrong range');
+                    }
+                }
+            }, 'Continue')
+        ])
+    }
+}
+
+
 export const modal = {
     view: function({attrs}) {
-        return m('#username-modal', 
-            {class: 'fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10'}, [
-            m('div', 
-                {class: 'bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-100'}, [
-                m('h2', {class: 'text-2xl font-light mb-4 text-gray-800'}, 'Enter Your Username'),
+        return m('#username-modal', [
+            m('#modal-block', [
+                m('h2#modal-hint', 'Enter Your Username'),
                 m(usernameForm, attrs)
             ])
         ])
     }
 }
 
+export const rangeModal = {
+    view: function({attrs}) {
+        return m('#range-modal', [
+            m('#range-block', [
+                m('h2#range-hint', 'Enter Your Preflop Range'),
+                m(RangeView, attrs)
+                //m(rangeSubmit, attrs)
+            ])
+        ])
+    }
+}
+
+
+
+
+export class Range {
+    constructor(matrix = null) {
+        // 13x13 matrix (AA at [0,0], 22 at [12,12])
+        this.matrix = matrix || Array(13).fill().map(() => Array(13).fill(0));
+    }
+    
+    setHand(rank1, rank2, isSuited, probability) {
+        const lower = Math.min(rank1, rank2);
+        const higher = Math.max(rank1, rank2);
+
+        if (lower === higher) {
+            this.matrix[rank1][rank2] = probability;
+        } 
+        else if (isSuited) {
+            this.matrix[lower][higher] = probability;
+        }
+        else {
+            this.matrix[higher][lower] = probability;
+        }
+    }
+    
+    toJSON() {
+        return this.matrix;
+    }
+    
+    static fromJSON(matrix) {
+        return new Range(matrix);
+    }
+}

@@ -71,7 +71,7 @@ button {
 /* Poker table */
 .player-area {
     z-index: 2;
-    @apply center-x text-center
+    @apply center-x text-center;
 }
 
 .poker-table {
@@ -146,8 +146,48 @@ button {
     @apply left-1/2 transform -translate-x-1/2;
 }
 
-
 .center-y {
     @apply top-1/2 transform -translate-y-1/2;
 }
 
+#username-modal {
+    @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10;
+}
+
+#username-submit {
+    @apply w-full bg-gray-800 text-white py-2 rounded-lg;
+}
+
+#modal-block {
+    @apply bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-100;
+}
+
+
+#modal-hint {
+    @apply text-2xl font-light mb-4 text-gray-800;
+}
+
+#range-modal {
+    @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10;
+}
+
+#range-grid {
+    grid-template-columns: repeat(13, 1fr);
+    @apply grid;
+}
+
+.range-cell {
+    @apply text-center select-none sm:w-12 sm:h-12 flex items-center justify-center w-9 h-9;
+}
+
+#range-block {
+    @apply bg-white p-6 rounded-lg shadow-lg max-w-2xl border border-gray-100;
+}
+
+#range-hint {
+    @apply text-2xl font-light mb-4 text-gray-800;
+}
+
+#range-submit {
+    @apply w-full bg-gray-800 text-white py-2 mt-2 rounded-lg;
+}

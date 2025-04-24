@@ -1,7 +1,7 @@
 import { TableView, title, GameStart, GameState, RoundStart} from './components/pokerTable.js'
 import { ActionsView, Action } from './components/actions.js'
 import { Player, VillainView, HeroView } from './components/player.js'
-import { modal } from './components/modal.js';
+import { modal, rangeModal, Range  } from './components/modal.js';
 import { handle } from'./socket.io.js';
 
 const PokerTable = {
@@ -10,6 +10,7 @@ const PokerTable = {
 
         depth: 100,
         loggedIn: false,
+        rangeSet: false,
         gameStarted: false,
         canStart: false,
         profit: 0
@@ -87,10 +88,17 @@ const PokerTable = {
     submit: function(username) {
         this.hero.updateName(username);
         this.state.loggedIn = true;
+        m.redraw();
+    },
+    selectRange: function(matrix) {
+        const range = new Range(matrix);
+        this.hero.updatePreflopRange(range);
         this.socket.emit('join', { 
             tableId: this.state.tableId, 
-            heroName: this.hero.name 
+            heroName: this.hero.name,
+            preflopRange: this.hero.preflopRange.toJSON()
         });
+        this.state.rangeSet = true;
         m.redraw();
     },
     startGame: function (){
@@ -138,9 +146,11 @@ const PokerTable = {
             m('div', {class: 'container mx-auto px-4 py-6'}, [
                 m(title, {tableId: this.state.tableId}),
                 !this.state.loggedIn && m(modal, {
-                    villainName: 
-                    this.villain.name, 
+                    villainName: this.villain.name, 
                     submit: (username) => this.submit(username)}),
+                // Preflop range
+                !this.state.rangeSet && this.state.loggedIn && m(rangeModal, {
+                    submit: (matrix) => this.selectRange(matrix)}),
                 // Game Table
                 m('div', {class: 'relative max-w-2xl mx-auto mb-8 mt-20'}, [
                     m(VillainView, {villain: this.villain}),

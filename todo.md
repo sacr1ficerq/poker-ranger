@@ -47,6 +47,7 @@
 - Dark theme
 - Luckinnes
 - Chat for messages
+- Add abilty to change preflop range mid hand?
 
 
 ## Server
