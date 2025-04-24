@@ -21,13 +21,13 @@ class GameManager:
     def __init__(self):
         self.tables = {}
 
-    def create_table(self, sb, bb):
+    def create_table(self, sb: float, bb: float) -> Table:
         table_id = self.generate_id()
         self.tables[table_id] = Table(table_id, sb, bb)
 
         return self.tables[table_id]
 
-    def exists(self, table_id):
+    def exists(self, table_id: str):
         return table_id in self.tables
 
     def generate_id(self) -> str:
@@ -41,37 +41,37 @@ class GameManager:
         all_tables = self.tables.values()
         return [asdict(TableData(t.id, len(t.players))) for t in all_tables]
 
-    def get_players(self, table_id) -> List[str]:
-        return [p.name for p in self.tables[table_id]]
+    def get_players(self, table_id: str) -> List[str]:
+        return [p.name for p in self.tables[table_id].players]
 
-    def get_private(self, table_id, player_name) -> List[str]:
+    def get_private(self, table_id: str, player_name: str) -> List[str]:
         if not self.exists(table_id):
             return None
         return self.tables[table_id].private_state(player_name)
 
-    def get_table(self, table_id):
+    def get_table(self, table_id: str):
         return self.tables[table_id]
 
-    def add_player(self, table_id, id, name, stack):
+    def add_player(self, table_id: str, id: str, name: str, stack: str):
         assert self.exists(table_id)
         self.tables[table_id].add_player(id, name, stack)
 
-    def get_player_states(self, table_id) -> List[dict]:
+    def get_player_states(self, table_id: str) -> List[dict]:
         assert self.exists(table_id)
         table = self.tables[table_id]
         return [asdict(PlayerData(p.name, p.stack)) for p in table.players]
 
-    def get_player_table(self, player_id) -> (str, Player):
+    def get_player_table(self, player_id: str) -> (str, Player):
         for table_id, table in self.tables.items():
             for player in table.players:
                 if player.id == player_id:
                     return table_id, player
         return None, None
 
-    def disconnect(self, player_id):
+    def disconnect(self, player_id: str) -> None:
         table_id, player = self.get_player_table(player_id)
         if table_id is None:
-            return None
+            return None, None
         table = self.tables[table_id]
 
         hero_name = player.name
@@ -81,6 +81,7 @@ class GameManager:
             self.tables.pop(table_id, None)
             assert not self.exists(table_id)
             print(f"Table {table_id} removed (no players left)")
+        return table_id, player
 
     def start_table(self, table_id):
         self.tables[table_id].start_game()

@@ -12,9 +12,7 @@ app = Flask(
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# In-memory storage for tables TODO: move this logic to database
 game_manager = GameManager()
-# TODO: store players and allow joining table with username
 
 
 # Routes
@@ -23,10 +21,8 @@ def index():
     return render_template('index.html')
 
 
-# TODO: create table as logged in player with username and table admin capabilities
 @app.route('/create_table')
 def create_table():
-    # TODO: create tables with different stacksize/blinds/etc.
     sb = 0.5
     bb = 1
     table = game_manager.create_table(sb, bb)

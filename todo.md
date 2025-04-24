@@ -4,12 +4,12 @@
 
 ### Basic Poker
 #### Lobby (done)
-- Client renderiing of all available rooms with refresh (done)
+- Rendering of all available rooms with refresh (done)
 - Rewrite lobby in mithril.js (done)
 #### Room
-- Client rendering of room: players, room_id (done)
+- Rendering of room: players, room_id (done)
 - Handling disconnect properly (done)
-- Client rendering of game state (done)
+- Rendering of game state (done)
 - Showdown rendering (done)
 - Rewrite room in mithril.js (done)
 - Restrict users from entering with existing names (done)
@@ -23,7 +23,13 @@
 - Results table
 - Nicer UI
 - Hide zero bets and pot
+
 ### Skewed sampling (for preflop)
+#### Room
+- Player connecting and selecting range after modal
+- Starting game with starting pot size
+- Add templates for different preflop situations
+
 ### Game tree nodes
 
 ### Cosmetics (optional)
@@ -50,14 +56,17 @@
 - Server route for getting all rooms (done)
 - Server route for creating room (done)
 #### Room
-- Server route for starting game (done)
+- Route for starting game (done)
 - Handling disconnect properly (done)
-- Server routes for in game actions (done)
+- Routes for in game actions (done)
 - Restrict users from entering with existing names (done)
-- Move button
-- Template sizings
-- Results table
+- Route for fetching results table
+
 ### Skewed sampling (for preflop)
+#### Room
+- Route for starting game with starting pot size
+- Routes for player connecting and selecting range
+
 ### Game tree nodes
 
 ### Cosmetics (optional)
