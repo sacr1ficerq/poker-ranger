@@ -70,18 +70,40 @@ export const TableView = {
 }
 
 export const GameStart = {
+    oninit: function() {
+        this.valid = false;
+        this.startingPot = 0;
+    },
+
+    validateInput: function(pot, bb=1, stack=100) {
+        this.startingPot = pot;
+        this.valid = pot >= 2 * bb && pot < stack;
+    },
+
     view: function({attrs}) {
         const {startGame, canStart} = attrs;
-        const startingPot = 6;
-        return m('div', {class: 'flex justify-center mt-24'}, [
-            m('button#start-table', {
-                class: `btn-primary medium ${canStart? '': 'disabled'}`,
-                onclick: () => {
-                    console.log('starting pot:', startingPot);
-                    startGame(startingPot);
-                }
-            }, 'Start table'), 
-            'Input field'
+        return m('div', {class: ''},[
+            m('div', {class: 'flex justify-center mt-24'},
+                m('button#start-table', {
+                    class: `btn-primary medium ${ (this.valid && canStart)? '': 'disabled'}`,
+                    onclick: () => {
+                        console.log('starting pot:', this.startingPot);
+                        startGame(this.startingPot);
+                    }
+                }, 'Start table'), 
+            ),
+            m('div', {class: 'flex justify-center'}, 
+                m('input#starting-pot', {
+                    class: 'w-32 pl-2 mt-2 border border-gray-200 rounded-lg',
+                    type: 'number',
+                    placeholder: 'Starting pot',
+                    oninput: (e) => {
+                        const pot = e.target.value.trim();
+                        console.assert(pot != undefined, 'pot undefined');
+                        this.validateInput(pot);
+                    }
+                })
+            )
         ])
     }
 }

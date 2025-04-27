@@ -104,7 +104,7 @@ class GameManager:
 
         table.new_round()
 
-    def action(self, table_id, hero_name, amount, action):
+    def action(self, table_id: str, hero_name: str, amount: float, action: str):
         assert self.exists(table_id)
         table = self.tables[table_id]
         d = {'bet': Action.BET,

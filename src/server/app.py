@@ -14,7 +14,7 @@ app = Flask(
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-game_manager = GameManager()
+game_manager: GameManager = GameManager()
 
 
 # Routes
@@ -133,6 +133,11 @@ def on_start(data):
 
     starting_pot = data.get('startingPot')
     assert starting_pot, 'no startingPot'
+
+    try:
+        starting_pot = float(starting_pot)
+    except ValueError:
+        assert False, 'starting_pot is not convertible'
 
     assert game_manager.exists(table_id), f'{table_id} not found in tables'
     emit('gameStarted', room=table_id)

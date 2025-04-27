@@ -11,6 +11,10 @@ const PokerTable = {
         depth: 100,
         loggedIn: false,
         rangeSet: false,
+
+        //loggedIn: true,
+        //rangeSet: true,
+
         gameStarted: false,
         canStart: false,
         profit: 0
@@ -41,7 +45,6 @@ const PokerTable = {
         this.hero.newRound();
         this.villain.newRound();
         m.redraw();
-        // Add animation of dealing cards and button move
     },
     update: function(tableState) {
         this.gameState.button = tableState.button;
