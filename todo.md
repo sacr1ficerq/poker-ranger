@@ -16,7 +16,6 @@
 - Render combinations on showdown (done)
 - New round start on client (done)
 - Move button
-- Remove broke players
 - Convert raise sized from delta to absolute
 - Fix bugs
 - Template sizings
@@ -26,7 +25,7 @@
 
 ### Skewed sampling (for preflop)
 #### Room
-- Player connecting and selecting range after modal
+- Player connecting and selecting range after modal (done)
 - Starting game with starting pot size
 - Add templates for different preflop situations
 
@@ -34,21 +33,24 @@
 
 ### Cosmetics (optional)
 - Logo
-- Dark gray + gold color scheme
+- Dark gray + gold color scheme or rose-pine?
 - Activate input field by default
 - JS testing
 - Main page with desciption and link to lobby
 - Add last action on player
 - Loading into existing disconnected player with same name
+- Remove broke players
 - Hints
 - New state for winning + all_in
 - Animations with regulated speed
 - Table sprite + bg sprite
-- Dark theme
+- Dark/Light theme
 - Luckinnes
 - Chat for messages
 - Add abilty to change preflop range mid hand?
-
+- Add starting pot templates
+- Add starting pot input validation
+- Add red border after wrong input
 
 ## Server
 

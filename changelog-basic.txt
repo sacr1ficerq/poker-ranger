@@ -1,0 +1,147 @@
+Date:   Tue Apr 8 16:13:48 2025 +0300
+
+    Server refactoring
+    
+    Moved game logic wrapper to game_manager.py
+
+Date:   Mon Apr 7 16:13:47 2025 +0300
+
+    Bugfix
+    
+    Fixed bug with double round start due to calling new_round() after
+    starting table.
+
+Date:   Mon Apr 7 12:43:29 2025 +0300
+
+    Start round button
+    
+    Now new round could be started with button press.
+
+Date:   Sun Apr 6 23:51:29 2025 +0300
+
+    Massive refactor + Bugfix
+    
+    - Added Player class to store hero and villain data.
+    - Moved gameState data to GameState class.
+    - Moved all socket interaction from children to parent class.
+    - Now game updates flow from parent class to children instead of getting
+      handled in parent.
+
+Date:   Sun Apr 6 14:43:52 2025 +0300
+
+    File restructure
+
+Date:   Sat Apr 5 21:37:28 2025 +0300
+
+    Fully working single poker hand
+    
+    Now you can play one poker hand.
+    Showdown rendering correctly with both players cards.
+    Player states render correctly: acting, folded, winning, allIn.
+
+Date:   Sat Apr 5 11:16:22 2025 +0300
+
+    Add villain name on join + bugfix
+
+Date:   Fri Apr 4 19:29:20 2025 +0300
+
+    Table "boots" with mithril
+
+Date:   Thu Apr 3 17:27:52 2025 +0300
+
+    Lobby page in mithril.js
+    
+    Now index.html is built through mithril hyperjs components.
+    Now we are using this awesome framework. The same one that lichess is
+    built on.
+    Frontend is much more scalable and maintainable.
+
+Date:   Wed Apr 2 12:06:41 2025 +0300
+
+    Project restrucrure
+    
+    Moved client thing to src/client and server to src/server
+
+Date:   Tue Apr 1 16:40:58 2025 +0300
+
+    Showdown + nicer board rendering
+    
+    Fixed showdown rendering
+    Now board renders as cards and not as text
+    Added new_round to api, it its not being called from client yet.
+    Now game waits for next_round() after end of round reached.
+
+Date:   Mon Mar 31 19:55:11 2025 +0300
+
+    Buggy but game works
+    
+    Added call and raise buttons. And basic in game interactions.
+    - No showdown
+    - Open folding doesn't work
+
+Date:   Mon Mar 31 12:45:10 2025 +0300
+
+    File tree cosmetics
+
+Date:   Mon Mar 31 12:07:37 2025 +0300
+
+    Separate game logic
+
+Date:   Sun Mar 30 21:16:48 2025 +0300
+
+    Add betting UI
+
+Date:   Sun Mar 30 18:50:10 2025 +0300
+
+    Players see their cards and can bet
+
+Date:   Sun Mar 30 17:25:27 2025 +0300
+
+    Working card display
+
+Date:   Sun Mar 30 14:38:29 2025 +0300
+
+    Remove middleground
+
+Date:   Sat Mar 29 19:59:42 2025 +0300
+
+    Introduced Node + tailwind/cli
+    
+    Installed tailwindcss using pnpm and moved styling to `input.css`
+    Now I can dynamically convert tailwind to css using `pnpm run dev`
+    command.
+    Moved source code to `/src` folder.
+
+Date:   Wed Mar 26 18:23:49 2025 +0300
+
+    Game start + some game UI
+    
+    Made first steps towards game cycle with game starting event.
+    Added placeholder ugly UI elements like dealer button, action border and
+    community cards.
+
+Date:   Wed Mar 26 15:39:41 2025 +0300
+
+    Room entering
+    
+    Now users input their usernames upon entering a room.
+    Also usernames and stacks now are rendered correctly when players join
+    room.
+
+Date:   Wed Mar 26 13:07:17 2025 +0300
+
+    Complete lobby
+    
+    Lobby is now fully working. Players can create games and join not
+    complete lobbies.
+
+Date:   Wed Mar 26 09:57:56 2025 +0300
+
+    Nicer UI
+    
+    Better UI for lobby page and game page.
+    Introduced Tailwind.css.
+
+Date:   Mon Mar 24 17:18:47 2025 +0300
+
+    Initial commit
