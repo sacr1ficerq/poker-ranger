@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Table 1v1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#fff9db',
+                            200: '#f7e7b5',
+                            300: '#e6c87d',
+                            400: '#d4a017',
+                            500: '#b8860b',
+                        },
+                        table: '#2c333e',
+                        felt: '#0d5c3e',
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .card {
+            width: 2.5rem;
+            height: 3.5rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .bet-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #e6c87d;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans h-screen overflow-hidden flex flex-col">
+
+    <!-- Основная игровая зона -->
+    <div class="flex-1 flex relative bg-gray-200/50">
+
+        <!-- Левый игрок -->
+        <div class="w-1/4 p-4 flex items-center justify-end">
+            <div class="relative bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg w-56">
+                <div class="font-semibold text-gray-800">Opponent</div>
+                <div class="text-xl font-medium">$8,250</div>
+                <div class="text-sm text-red-500">-$1,200</div>
+                
+                <!-- Карты -->
+                <div class="flex gap-1 mt-3">
+                    <div class="card bg-red-100 border border-red-300"></div>
+                    <div class="card bg-red-100 border border-red-300"></div>
+                </div>
+
+                <!-- Баттон и ставка -->
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-xs px-2 py-1 rounded-full font-bold">D</div>
+                <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    $750
+                </div>
+            </div>
+        </div>
+
+        <!-- Центральный стол -->
+        <div class="flex-1 flex items-center justify-center">
+            <div class="relative">
+                <!-- Стол -->
+                <div class="w-96 h-96 rounded-full bg-[#2c333e] shadow-2xl flex items-center justify-center">
+                    <!-- Карты на столе (борд) -->
+                    <div class="flex gap-2">
+                        <div class="card bg-white"></div>
+                        <div class="card bg-white"></div>
+                        <div class="card bg-white"></div>
+                    </div>
+                </div>
+                
+                <!-- Банк -->
+                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/70 text-gold-200 px-6 py-2 rounded-full text-sm font-medium">
+                    Pot: $3,150
+                </div>
+            </div>
+        </div>
+
+        <!-- Правый игрок (вы) -->
+        <div class="w-1/4 p-4 flex items-center justify-start">
+            <div class="relative bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg w-56">
+                <div class="font-semibold text-gray-800">You</div>
+                <div class="text-xl font-medium">$12,450</div>
+                <div class="text-sm text-green-500">+$2,150</div>
+                
+                <!-- Карты -->
+                <div class="flex gap-1 mt-3">
+                    <div class="card bg-blue-100 border border-blue-300"></div>
+                    <div class="card bg-blue-100 border border-blue-300"></div>
+                </div>
+
+                <!-- Баттон -->
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-400 text-xs px-2 py-1 rounded-full font-bold">SB</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель действий -->
+    <div class="h-40 bg-white/95 border-t border-gray-200 pt-4">
+        <!-- Шкала ставок с делениями -->
+        <div class="px-8 mb-6">
+            <div class="relative h-8">
+                <!-- Ползунок -->
+                <input type="range" 
+                       class="bet-slider absolute w-full h-2 bg-gray-300 rounded-full appearance-none" 
+                       min="0" max="5000" step="50" value="1000">
+                
+                <!-- Деления -->
+                <div class="absolute w-full flex justify-between px-1 top-3">
+                    <div class="w-px h-3 bg-gray-400"></div>
+                    <div class="w-px h-3 bg-gray-400"></div>
+                    <div class="w-px h-3 bg-gray-400"></div>
+                    <div class="w-px h-3 bg-gray-400"></div>
+                    <div class="w-px h-3 bg-gray-400"></div>
+                </div>
+                
+                <!-- Текущее значение -->
+                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-gold-400 text-gray-900 px-3 py-1 rounded-full text-sm font-bold">
+                    $1,000
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="flex justify-center gap-6">
+            <button class="bg-rose-600 hover:bg-rose-700 text-white px-10 py-3 rounded-full shadow-lg transition-all font-bold">
+                Fold
+            </button>
+            <button class="bg-gold-400 hover:bg-gold-500 text-gray-900 px-10 py-3 rounded-full shadow-lg transition-all font-bold">
+                Call $750
+            </button>
+            <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-3 rounded-full shadow-lg transition-all font-bold">
+                Raise $1,000
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poker Game Interface</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            table: '#2c333e',
+            gold: '#d4af37',
+            goldLight: '#e9d08e',
+            goldDark: '#b08c1a',
+            win: '#48bb78',
+            loss: '#f56565',
+            background: '#f8f9fa',
+            secondary: '#4a5568',
+          },
+          fontFamily: {
+            montserrat: ['Montserrat', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    /* Base styles */
+    .lobby-item {
+      background-color: rgba(74, 85, 104, 0.8);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      width: 125px;
+    }
+    
+    button, .btn {
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary {
+      background-color: #d4af37;
+      color: #2c333e;
+    }
+    .btn-primary:hover {
+      background-color: #b08c1a;
+    }
+    .btn-secondary {
+      background-color: #4a5568;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #2d3748;
+    }
+    .btn-nice {
+      background-color: #48bb78;
+      color: white;
+    }
+    .btn-nice:hover {
+      background-color: #38a169;
+    }
+    .medium {
+      padding: 0.75rem 2rem;
+      font-size: 0.875rem;
+    }
+    .small {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+    }
+    
+    /* Actions */
+    #actions {
+      background-color: white;
+      padding: 1rem;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    #bet-amount {
+      background-color: #d4af37;
+      color: #2c333e;
+      font-weight: bold;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      position: absolute;
+      top: -1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #btn-fold {
+      background-color: #f56565;
+      color: white;
+    }
+    #btn-fold:hover {
+      background-color: #e53e3e;
+    }
+    #btn-check {
+      background-color: #4a5568;
+      color: white;
+    }
+    #btn-check:hover {
+      background-color: #2d3748;
+    }
+    #btn-call {
+      background-color: #d4af37;;
+    }
+    #btn-call:hover {
+      background-color: #b08c1a;
+    }
+    #btn-bet, #btn-raise {
+      background-color: #48bb78;
+      color: white;
+    }
+    #btn-bet:hover, #btn-raise:hover {
+      background-color: #38a169;
+    }
+    
+    .disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Poker table */
+    .player-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .poker-table {
+      background-color: #2c333e;
+      border-radius: 50%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      width: 700px;
+      height: 350px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .player-card {
+      width: 50px;
+      height: 70px;
+      border-radius: 5px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      margin: 0 2px;
+    }
+    
+    .community-card {
+      width: 50px;
+      height: 70px;
+      border-radius: 5px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      margin: 0 4px;
+    }
+    
+    .folded {
+      opacity: 0.5;
+      filter: grayscale(1);
+    }
+    
+    .pot {
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+      color: white;
+      font-weight: 600;
+    }
+    
+    .bet-placed {
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      position: absolute;
+      bottom: -15px;
+    }
+    .bet-placed-villain {
+      font-size: 1rem;
+
+      position: absolute;
+      bottom: -18px;
+    }
+    .bet-placed-hero {
+      font-size: 1rem;
+
+      position: absolute;
+      bottom: -18px;
+    }
+    
+    .board {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+    
+    .acting {
+      box-shadow: 0 0 0 3px #d4af37;
+    }
+    .winning {
+      box-shadow: 0 0 0 3px #48bb78;
+    }
+    .all-in {
+      box-shadow: 0 0 0 3px #f56565;
+    }
+    
+    .dealer-button {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: #d4af37;
+      color: #2c333e;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+    }
+    
+    .center-x {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .center-y {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .sizing-option {
+      flex: 1;
+      text-align: center;
+      padding: 0.5rem 0;
+      font-weight: 500;
+      color: #4a5568;
+      border-right: 1px solid rgba(74, 85, 104, 0.3);
+      transition: background-color 0.2s;
+    }
+    .sizing-option:last-child {
+      border-right: none;
+    }
+    .sizing-option:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .player-name {
+      margin-top: 0.25rem;
+      font-weight: 600;
+    }
+    .player-stack {
+      font-size: 1rem;
+    }
+    .player-profit {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .cards-container {
+      display: flex;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body class="h-screen flex flex-col">
+  <div class="text-center mb-8 px-4 py-6">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">POKER RANGER</h1>
+      <div class="flex justify-center space-x-4 text-sm text-gray-600">
+          <p>table ID: <span class="font-mono">c0cf30a1</span></p>
+      </div>
+  </div>
+  <!-- Main Game Area -->
+  <div class="flex-1 flex items-center justify-center p-4 relative">
+    <!-- Poker Table -->
+    <div class="poker-table">
+      <!-- Board Cards -->
+      <div class="absolute flex flex-col items-center">
+        <div class="board">
+          <div class="community-card flex items-center justify-center text-xl text-red-500">9♠</div>
+          <div class="community-card flex items-center justify-center text-xl">9♥</div>
+          <div class="community-card flex items-center justify-center text-xl text-red-500">9♦</div>
+          <div class="community-card flex items-center justify-center text-xl">Q♣</div>
+          <div class="community-card flex items-center justify-center text-xl">10♠</div>
+        </div>
+        <div class="text-white text-lg">Pot: 3,900</div>
+      </div>
+
+      <!-- Player 1 (Left) -->
+      <div class="absolute left-10 player-area">
+        <div class="lobby-item">
+          <div class="dealer-button">D</div>
+          <div class="player-name">Player 1</div>
+          <div class="player-stack">4,500</div>
+          <div class="player-profit text-win">+1000</div>
+          <div class="cards-container">
+            <div class="player-card flex items-center justify-center text-xl text-red-500">A♥</div>
+            <div class="player-card flex items-center justify-center text-xl text-black">A♦</div>
+          </div>
+          <div class="bet-placed-villain center-x mt-2">Bet: 500</div>
+        </div>
+      </div>
+
+      <!-- Player 2 (Right) -->
+      <div class="absolute right-10 player-area">
+        <div class="lobby-item">
+          <div class="dealer-button bg-gray-100">BB</div>
+          <div class="player-name">Player 2</div>
+          <div class="player-stack">1600</div>
+          <div class="player-profit text-loss">-1000</div>
+          <div class="cards-container">
+            <div class="player-card flex items-center justify-center text-xl">K♠</div>
+            <div class="player-card flex items-center justify-center text-xl">K♦</div>
+          </div>
+          <div class="bet-placed-hero mt-2 text-white center-x">Bet: 1400</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div id="actions" class="h-36">
+    <div class="flex justify-center space-x-4 mb-4">
+      <button id="btn-fold" class="btn">Fold</button>
+      <!-- <button id="btn-call" class="btn text-white">Check</button> -->
+      <button id="btn-call" class="btn text-white">Call 900</button>
+      <div class="flex space-x-2">
+        <input class="w-36 px-4 py-2 border rounded-xl"/>
+        <button id="btn-raise" class="btn">Raise</button>
+    </div>
+    </div>
+
+    <!-- Sizing Scale -->
+    <div class="flex w-full bg-secondary/20 rounded-lg overflow-hidden">
+      <div class="hidden sizing-option">10%</div>
+      <div class="hidden sizing-option">25%</div>
+      <div class="sizing-option">50%</div>
+      <div class="sizing-option">100%</div>
+      <div class="sizing-option">ALL-IN</div>
+    </div>
+  </div>
+</body>
+</html>

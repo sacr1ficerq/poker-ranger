@@ -12,16 +12,12 @@ const PokerTable = {
         loggedIn: false,
         rangeSet: false,
 
-        //loggedIn: true,
-        //rangeSet: true,
-
         gameStarted: false,
         canStart: false,
-        profit: 0
     },
 
-    hero: new Player('Anon', 100),
-    villain: new Player('Anon', 100),
+    hero: new Player('Hero', 100),
+    villain: new Player('Villain', 100),
     gameState: new GameState(),
     oninit: function() {
         const pathSegments = window.location.pathname.split('/');
@@ -149,35 +145,41 @@ const PokerTable = {
     },
     view: function(vnode) {
         console.log('game state: ', this.gameState)
-        return m('div', {class: 'bg-gray-100 h-screen'},
-            m('div', {class: 'container mx-auto px-4 py-6'}, [
-                m(title, {tableId: this.state.tableId}),
-                !this.state.loggedIn && m(modal, {
-                    villainName: this.villain.name, 
-                    submit: (username) => this.submit(username)}),
-                // Preflop range
-                !this.state.rangeSet && this.state.loggedIn && m(rangeModal, {
-                    submit: (matrix) => this.selectRange(matrix)}),
+        return m('div', {class: 'h-screen flex flex-col'}, [
+            m(title, {tableId: this.state.tableId}),
+            !this.state.loggedIn && m(modal, {
+                villainName: this.villain.name, 
+                submit: (username) => this.submit(username)}),
+            // Preflop range
+            !this.state.rangeSet && this.state.loggedIn && m(rangeModal, {
+                submit: (matrix) => this.selectRange(matrix)}),
+            // Main Game Area
+            m('div', {
+                class: 'flex-1 flex items-center justify-center p-4 relative'}, [
                 // Game Table
-                m('div', {class: 'relative max-w-2xl mx-auto mb-8 mt-20'}, [
-                    m(VillainView, {villain: this.villain}),
-                    m(TableView, {gameState: this.gameState, heroBet: this.hero.bet, villainBet: this.villain.bet}),
-                    m(HeroView, {hero: this.hero})
-                ]),
-                this.state.gameStarted && this.hero.state == 'acting' && 
-                    m(ActionsView, {
-                        gameState: this.gameState, 
-                        act: (action, amount=0.0, valid=true) => this.act(action, amount, valid),
-                        heroBet: this.hero.bet
-                    }),
-                this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
-                    startRound: () => this.startRound()}),
-                !this.state.gameStarted && m(GameStart, {
-                    startGame: (pot) => this.startGame(pot),
-                    canStart: this.state.canStart})
-                
-            ])
-        )
+                m(TableView, {
+                    gameState: this.gameState,
+                    heroBet: this.hero.bet, 
+                    villainBet: this.villain.bet
+                }),
+                // Hero (left)
+                m(HeroView, {hero: this.hero}),
+                // Villain (right)
+                m(VillainView, {villain: this.villain}),
+            ]),
+            this.state.gameStarted && this.hero.state == 'acting' && 
+                m(ActionsView, {
+                    gameState: this.gameState, 
+                    act: (action, amount=0.0, valid=true) => 
+                        this.act(action, amount, valid),
+                    heroBet: this.hero.bet
+                }),
+            this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
+                startRound: () => this.startRound()}),
+            !this.state.gameStarted && m(GameStart, {
+                startGame: (pot) => this.startGame(pot),
+                canStart: this.state.canStart})
+        ])
     },
 
 };

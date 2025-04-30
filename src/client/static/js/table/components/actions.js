@@ -50,28 +50,37 @@ export const ActionsView = {
         const delta = maxBet - heroBet;
         console.log('Max bet: ', maxBet)
 
-        return m('#actions', [
-            m('button#btn-fold', {onclick: () => act(Action.FOLD, 0, this.valid)}, 'Fold'),
-            callable? 
-                m('button#btn-call', {onclick: () => act(Action.CALL, delta, this.valid)}, 'Call'):
-                m('button#btn-check', {onclick: () => act(Action.CHECK, 0, this.valid)}, 'Check'),
-            m('div', {class: 'flex space-x-2'}, [
-                m('input#bet-amount', {
-                    type: 'number',
-                    placeholder: 'Amount',
-                    oninput: (e) => {
-                        this.validateBetAmount(e.target.value, minBetAmount, maxBetAmount);
-                    }
-                }),
-                raisable? 
-                    m('button#btn-raise', {
-                        class: this.valid? '': 'disabled',
-                        onclick: () => {act(Action.RAISE, this.getBetAmount(), this.valid);}}, 'Raise') :
-                    m('button#btn-bet', {
-                        class: this.valid? '': 'disabled',
-                        onclick: () => {act(Action.BET, this.getBetAmount()), this.valid}}, 'Bet')
+        return m('#actions', 
+            m('div', {class: 'flex justify-center space-x-4 mb-4'}, [
+                m('button#btn-fold', {onclick: () => act(Action.FOLD, 0, this.valid)}, 'Fold'),
+                callable? 
+                    m('button#btn-call', {onclick: () => act(Action.CALL, delta, this.valid)}, 'Call'):
+                    m('button#btn-check', {onclick: () => act(Action.CHECK, 0, this.valid)}, 'Check'),
+                m('div', {class: 'flex space-x-2'}, [
+                    m('input#bet-amount', {
+                        type: 'number',
+                        placeholder: 'Amount',
+                        oninput: (e) => {
+                            this.validateBetAmount(e.target.value, minBetAmount, maxBetAmount);
+                        }
+                    }),
+                    raisable? 
+                        m('button#btn-raise', {
+                            class: this.valid? '': 'disabled',
+                            onclick: () => {act(Action.RAISE, this.getBetAmount(), this.valid);}}, 'Raise') :
+                        m('button#btn-bet', {
+                            class: this.valid? '': 'disabled',
+                            onclick: () => {act(Action.BET, this.getBetAmount()), this.valid}}, 'Bet')
+                ]),
             ]),
-        ])
+            m('div', {class: 'flex w-full bg-secondary/20 rounded-lg overflow-hidden'}, [
+                m('div.sizing-option', '10%'),
+                m('div.sizing-option', '25%'),
+                m('div.sizing-option', '50%'),
+                m('div.sizing-option', '100%'),
+                m('div.sizing-option', 'all-in')
+            ])
+        )
     }
 }
 

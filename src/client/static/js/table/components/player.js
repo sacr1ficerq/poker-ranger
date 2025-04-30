@@ -17,6 +17,7 @@ export class Player {
         this.state = PlayerState.BASE;
         this.cards = [null, null];
         this.preflopRange = new Range();
+        this.position = 'BB'
     }
 
     update(player) {
@@ -51,7 +52,7 @@ export class Player {
     newRound() {
         this.state = PlayerState.BASE;
         this.stack = this._depth;
-        this.cards= ['', ''];
+        this.cards= [null, null];
     }
 }
 
@@ -60,14 +61,17 @@ export const HeroView = {
     view: function({attrs}) {
         const hero = attrs.hero;
         console.log('rendering cards:', hero.cards);
-        return m('#hero', {class: 'player-area absolute -bottom-16 center-x text-center ' + hero.state}, [
-            m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
-                m('#hero-name', {class: 'text-xs text-gray-600'}, hero.name),
-                m('div', {class: 'flex space-x-2 mt-1'}, [
+        return m('#hero', {class: 'player-area absolute left-10 ' + hero.state}, [
+            m('div', {class: 'player-items'}, [
+                m('div.player-position', hero.position),
+                m('div.player-name', hero.name),
+                m('div.player-stack', hero.stack),
+                m('div.player-profit text-win', hero.profit),
+                m('div.cards-container', [
                     m(card, {key: hero.cards[0], card: hero.cards[0]}),
                     m(card, {key: hero.cards[1], card: hero.cards[1]})
                 ]),
-                m('#hero-stack', {class: 'text-xs text-gray-600'}, hero.stack)
+                m('div.bet-placed.center-x', hero.bet)
             ])
         ])
     }
@@ -76,14 +80,17 @@ export const HeroView = {
 export const VillainView = {
     view: function({attrs}) {
         const villain = attrs.villain;
-        return m('#villain', {class: 'player-area absolute -top-16 center-x text-center ' + villain.state}, [
-            m('div', {class: 'bg-white rounded-lg p-3 shadow-md'}, [
-                m('#villain-name', {class: 'text-xs text-gray-600'}, villain.name),
-                m('div', {class: 'flex space-x-2 mt-1'}, [
-                    m(card, {card: villain.cards[0]}),
-                    m(card, {card: villain.cards[1]})
+        return m('#villain', {class: 'player-area absolute right-10 ' + villain.state}, [
+            m('div', {class: 'player-items'}, [
+                m('div.player-position', villain.position),
+                m('div.player-name', villain.name),
+                m('div.player-stack', villain.stack),
+                m('div.player-profit text-win', villain.profit),
+                m('div.cards-container', [
+                    m(card, {key: villain.cards[0], card: villain.cards[0]}),
+                    m(card, {key: villain.cards[1], card: villain.cards[1]})
                 ]),
-                m('#villain-stack', {class: 'text-xs text-gray-600'}, villain.stack)
+                m('div.bet-placed.center-x', villain.bet)
             ])
         ])
     }

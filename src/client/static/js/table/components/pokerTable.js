@@ -55,16 +55,12 @@ export const title = {
 
 export const TableView = {
     view: function({attrs}) {
-        const {gameState, heroBet, villainBet} = attrs;
-
+        const {gameState} = attrs;
         return m('div', {class: 'poker-table'}, [
-            m('div#villain-bet', {class: 'bet-placed-villain'}, villainBet),
             m('#community-cards', {class: 'board'}, gameState.board.map(
                 (c) => m(card, {card: c})
             )),
-            m('div#pot-display', {class: 'pot mt-8'}, 'Pot: ' + gameState.pot),
-            m('div#dealer-button', {class: 'dealer-button'}, 'D'), // TODO move dealer
-            m('div#hero-bet', {class: 'bet-placed-hero'}, heroBet)
+            m('div#pot-display', 'Pot: ' + gameState.pot),
         ])
     }
 }

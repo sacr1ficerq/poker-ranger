@@ -2,192 +2,244 @@
 @tailwind components;
 @tailwind utilities;
 
-.lobby-item {
-    @apply grid grid-cols-4 items-center px-6 py-4;
+.center-x {
+    @apply left-1/2 transform -translate-x-1/2;
+}
+.center-y {
+    @apply top-1/2 transform -translate-y-1/2;
 }
 
 button {
-    @apply items-center justify-center rounded-lg;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    @apply bg-gray-100;
 }
 
 .btn-primary {
-    @apply transition-colors text-white bg-blue-500 hover:bg-blue-600;
+    @apply transition-colors text-white bg-gray-700 hover:bg-gray-800;
 }
-
-
 .btn-secondary {
     @apply transition-colors text-white bg-orange-500 hover:bg-orange-600;
 }
-
 .btn-nice {
     @apply transition-colors text-white bg-green-500 hover:bg-green-600;
 }
-
 .medium {
     @apply px-6 py-3 font-medium;
 }
-
 .small {
     @apply px-2 py-1 text-sm;
 }
-
-/* Actions */
-#actions {
-    @apply flex justify-center space-x-4 mt-20;
-}
-
-#bet-amount {
-    @apply w-36 px-4 py-2 border rounded-xl;
-}
-
-.btn {
-    @apply text-white px-6 py-2 transition rounded-xl;
-}
-
-#btn-fold {
-    @apply btn bg-red-500 hover:bg-red-600;
-}
-
-#btn-check {
-    @apply btn bg-blue-500 hover:bg-blue-600;
-}
-
-#btn-call {
-    @apply btn bg-yellow-500 hover:bg-yellow-600;
-}
-
-#btn-bet {
-    @apply btn bg-green-500 hover:bg-green-600;
-}
-
-#btn-raise {
-    @apply btn bg-orange-500 hover:bg-orange-600;
-}
-
 .disabled {
     @apply opacity-50 cursor-not-allowed;
 }
 
 /* Poker table */
+.lobby-item {
+    @apply grid grid-cols-4 items-center px-6 py-4;
+}
+
+.player-items {
+    background-color: rgba(74, 85, 104, 0.8);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    width: 125px;
+}
+
+
 .player-area {
     z-index: 2;
-    @apply center-x text-center;
+
+    align-items: center;
+    justify-content: center;
+
+    @apply flex text-center absolute;
+}
+
+
+#actions {
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+.sizing-option {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem 0;
+    font-weight: 500;
+    color: #4a5568;
+    border-right: 1px solid rgba(74, 85, 104, 0.3);
+    transition: background-color 0.2s;
+}
+.sizing-option:last-child {
+    border-right: none;
+}
+.sizing-option:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.player-position {
+    background-color: #d4af37;
+    color: #2c333e;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    top: -10px;
+    font-size: 0.75rem;
+
+    @apply flex absolute center-x w-6 h-6 rounded-full font-bold;
+}
+
+.player-name {
+    margin-top: 0.25rem;
+    font-weight: 600;
+}
+.player-stack {
+    font-size: 1rem;
+}
+.player-profit {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.cards-container {
+    @apply flex mt-2;
 }
 
 .poker-table {
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    @apply rounded-full text-white p-8 relative h-64 bg-green-800;
-}
+    background-color: #2c333e;
 
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    width: 700px;
+    height: 350px;
+
+    align-items: center;
+
+    @apply flex justify-center rounded-full p-8 relative;
+}
 .player-card {
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    @apply w-8 h-12 rounded;
+    width: 50px;
+    height: 70px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 0 2px;
+
+    @apply flex items-center text-xl justify-center;
 }
-
-
 .community-card {
     background: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     @apply w-8 h-12 rounded;
 }
-
 .folded {
     opacity: 0.5;
     filter: grayscale(1);
 }
+#pot-display {
+    position: absolute;
+    bottom: 20px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
 
-.pot {
-    @apply player-area absolute top-1/2;
+    @apply player-area absolute top-1/2 text-white text-lg;
 }
-
 .bet-placed {
+    font-size: 1rem;
+
+    position: absolute;
+    bottom: -18px;
+
     left: 50%;
-    z-index: 2;
     transform: translateX(-50%);
-    @apply font-bold text-center absolute;
-}
 
-.bet-placed-villain {
-    top: 36px;
-    @apply bet-placed;
+    @apply text-black;
 }
-
-.bet-placed-hero {
-    bottom: 36px; 
-    @apply bet-placed;
-}
-
 .board {
-    /* @apply border absolute center-x player-area text-white text-center top-1/2; */
     @apply flex justify-center space-x-2 absolute center-x center-y; 
 }
-
 .acting {
     @apply border-yellow-500 rounded-xl border-2;
 }
-
 .winning {
     @apply border-teal-500 rounded-xl border-2;
 }
-
 .all-in {
     @apply border-red-500 rounded-xl border-2;
 }
 
-.dealer-button {
-    top: 20%;
-    left: 40%;
-    z-index: 2;
-    @apply bg-yellow-600 rounded-full w-6 h-6 text-center absolute;
+/* Actions */
+#bet-amount {
+    @apply w-36 px-4 py-2 border rounded-xl;
+}
+#btn-fold {
+    background-color: #f56565;
+    color: white;
+}
+#btn-fold:hover {
+    background-color: #e53e3e;
+}
+#btn-check {
+    background-color: #4a5568;
+    color: white;
+}
+#btn-check:hover {
+    background-color: #2d3748;
+}
+#btn-call {
+    background-color: #d4af37;;
+}
+#btn-call:hover {
+    background-color: #b08c1a;
+}
+#btn-bet, #btn-raise {
+    background-color: #48bb78;
+    color: white;
+}
+#btn-bet:hover, #btn-raise:hover {
+    background-color: #38a169;
 }
 
-.center-x {
-    @apply left-1/2 transform -translate-x-1/2;
-}
-
-.center-y {
-    @apply top-1/2 transform -translate-y-1/2;
-}
-
+/* Modals */
 #username-modal {
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10;
 }
-
 #username-submit {
     @apply w-full bg-gray-800 text-white py-2 rounded-lg;
 }
-
 #modal-block {
     @apply bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-100;
 }
-
-
 #modal-hint {
     @apply text-2xl font-light mb-4 text-gray-800;
 }
-
 #range-modal {
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10;
 }
-
 #range-grid {
     grid-template-columns: repeat(13, 1fr);
     @apply grid;
 }
-
 .range-cell {
     @apply text-center select-none sm:w-12 sm:h-12 flex items-center justify-center w-9 h-9;
 }
-
 #range-block {
     @apply bg-white p-6 rounded-lg shadow-lg max-w-2xl border border-gray-100;
 }
-
 #range-hint {
     @apply text-2xl font-light mb-4 text-gray-800;
 }
-
 #range-submit {
     @apply w-full bg-gray-800 text-white py-2 mt-2 rounded-lg;
 }

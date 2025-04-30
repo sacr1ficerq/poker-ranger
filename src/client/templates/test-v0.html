@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poker Game Interface</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            table: '#2c333e',
+            gold: '#d4af37',
+            goldLight: '#e9d08e',
+            goldDark: '#b08c1a',
+            win: '#48bb78',
+            loss: '#f56565',
+            background: '#f8f9fa',
+            secondary: '#4a5568',
+          },
+          fontFamily: {
+            montserrat: ['Montserrat', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f8f9fa;
+    }
+    .poker-table {
+      background-color: #2c333e;
+      border-radius: 50%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    .card {
+      width: 60px;
+      height: 84px;
+      border-radius: 5px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .dealer-button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #d4af37;
+      color: #2c333e;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .sizing-option:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="h-screen flex flex-col">
+  <!-- Main Game Area -->
+  <div class="flex-1 flex items-center justify-center p-4 relative">
+    <!-- Poker Table -->
+    <div class="poker-table w-[700px] h-[350px] relative flex items-center justify-center">
+      <!-- Board Cards -->
+      <div class="absolute flex flex-col items-center">
+        <div class="flex space-x-2 mb-4">
+          <div class="card flex items-center justify-center text-xl">A♠</div>
+          <div class="card flex items-center justify-center text-xl">K♥</div>
+          <div class="card flex items-center justify-center text-xl">Q♦</div>
+          <div class="card flex items-center justify-center text-xl">J♣</div>
+          <div class="card flex items-center justify-center text-xl">10♠</div>
+        </div>
+        <div class="text-white font-semibold text-lg">Pot: $1,250</div>
+      </div>
+
+      <!-- Player 1 (Left) -->
+      <div class="absolute left-10 flex flex-col items-center">
+        <div class="bg-secondary/80 rounded-lg p-3 text-white">
+          <div class="font-semibold">Player 1</div>
+          <div class="text-sm">Stack: $5,000</div>
+          <div class="text-win font-medium">+$750</div>
+          <div class="flex space-x-1 mt-2">
+            <div class="card flex items-center justify-center text-xl">A♥</div>
+            <div class="card flex items-center justify-center text-xl">A♦</div>
+          </div>
+        </div>
+        <div class="mt-2 text-white">Bet: $250</div>
+      </div>
+
+      <!-- Player 2 (Right) -->
+      <div class="absolute right-10 flex flex-col items-center">
+        <div class="bg-secondary/80 rounded-lg p-3 text-white">
+          <div class="font-semibold">Player 2</div>
+          <div class="text-sm">Stack: $4,250</div>
+          <div class="text-loss font-medium">-$750</div>
+          <div class="flex space-x-1 mt-2">
+            <div class="card flex items-center justify-center text-xl">K♠</div>
+            <div class="card flex items-center justify-center text-xl">K♦</div>
+          </div>
+        </div>
+        <div class="mt-2 text-white">Bet: $250</div>
+        <div class="dealer-button mt-2">D</div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="bg-background p-4 shadow-md">
+    <!-- Action Buttons -->
+    <div class="flex justify-center space-x-4 mb-4">
+      <button class="bg-loss hover:bg-loss/90 text-white font-semibold py-2 px-6 rounded-lg shadow">Fold</button>
+      <button class="bg-secondary hover:bg-secondary/90 text-white font-semibold py-2 px-6 rounded-lg shadow">Check</button>
+      <button class="bg-gold hover:bg-goldDark text-table font-bold py-2 px-6 rounded-lg shadow">Call $250</button>
+      <button class="bg-gold hover:bg-goldDark text-table font-bold py-2 px-6 rounded-lg shadow">Raise</button>
+    </div>
+
+    <!-- Sizing Scale -->
+    <div class="flex w-full bg-secondary/20 rounded-lg overflow-hidden">
+      <div class="sizing-option flex-1 text-center py-2 font-medium text-secondary border-r border-secondary/30 transition-colors">10%</div>
+      <div class="sizing-option flex-1 text-center py-2 font-medium text-secondary border-r border-secondary/30 transition-colors">25%</div>
+      <div class="sizing-option flex-1 text-center py-2 font-medium text-secondary border-r border-secondary/30 transition-colors">50%</div>
+      <div class="sizing-option flex-1 text-center py-2 font-medium text-secondary border-r border-secondary/30 transition-colors">100%</div>
+      <div class="sizing-option flex-1 text-center py-2 font-medium text-secondary transition-colors">ALL-IN</div>
+    </div>
+  </div>
+</body>
+</html>

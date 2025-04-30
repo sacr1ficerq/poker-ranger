@@ -2,7 +2,7 @@
   "name": "poker-ranger",
   "type": "module",
   "scripts": {
-    "dev": "tailwindcss -i ./src/client/static/css/input.css -o ./src/client/static/css/output.css --watch",
+    "dev": "tailwindcss -i ./src/client/static/css/input.css -o ./src/client/static/css/output.css --watch --verbose",
     "build": "tailwindcss -i ./src/client/static/css/input.css -o ./src/client/static/css/output.css --minify"
   },
   "devDependencies": {
