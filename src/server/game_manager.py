@@ -22,9 +22,9 @@ class GameManager:
     def __init__(self):
         self.tables: Dict[str, Table] = {}
 
-    def create_table(self, sb: float, bb: float) -> Table:
+    def create_table(self, starting_pot: float, depth: float, sb: float=0.5, bb: float=1) -> Table:
         table_id = self.generate_id()
-        self.tables[table_id] = Table(table_id, sb, bb)
+        self.tables[table_id] = Table(table_id, starting_pot, depth, sb, bb)
 
         return self.tables[table_id]
 
@@ -86,13 +86,13 @@ class GameManager:
             print(f"Table {table_id} removed (no players left)")
         return table_id, player
 
-    def start_table(self, table_id: str, starting_pot: float):
-        self.tables[table_id].start_game(starting_pot)
+    def start_table(self, table_id: str):
+        self.tables[table_id].start_game()
 
-    def get_table_data(self, table_id):
+    def get_table_data(self, table_id: str):
         return self.tables[table_id].data()
 
-    def start_round(self, table_id):
+    def start_round(self, table_id: str):
         table = self.tables[table_id]
         n = len(table.players)
 

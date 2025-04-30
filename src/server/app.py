@@ -22,21 +22,25 @@ game_manager: GameManager = GameManager()
 def index():
     return render_template('index.html')
 
-
-@app.route('/create_table')
-def create_table():
-    sb = 0.5
-    bb = 1
-    table = game_manager.create_table(sb, bb)
-    return redirect(url_for('join_table', table_id=table.id))
-
-
 @app.route('/table/<table_id>')
 def join_table(table_id):
     if not game_manager.exists(table_id):
         print(f'{table_id} not found in tables')
         return redirect(url_for('index'))
     return render_template('table.html', table_id=table_id)
+
+@socketio.on('createTable')
+def create_table(data):
+    try:
+        starting_pot = float(data['startingPot'])
+        depth = float(data['depth'])
+        
+        table = game_manager.create_table(starting_pot, depth)
+        emit('invite', {
+            'tableId': table.id
+        })
+    except (KeyError, ValueError) as e:
+        print('error')
 
 
 # socketio events
@@ -116,7 +120,8 @@ def on_join(data):
 def handle_disconnect():
     id = request.sid
     table_id, player = game_manager.disconnect(id)
-    assert table_id is not None and player is not None, 'wrong id'
+    if table_id is not None and player is not None:
+        return
 
     leave_room(table_id)
     if game_manager.exists(table_id):
@@ -131,18 +136,10 @@ def on_start(data):
     table_id = data.get('tableId')
     assert table_id, 'no tableId'
 
-    starting_pot = data.get('startingPot')
-    assert starting_pot, 'no startingPot'
-
-    try:
-        starting_pot = float(starting_pot)
-    except ValueError:
-        assert False, 'starting_pot is not convertible'
-
     assert game_manager.exists(table_id), f'{table_id} not found in tables'
     emit('gameStarted', room=table_id)
 
-    game_manager.start_table(table_id, starting_pot)
+    game_manager.start_table(table_id)
 
     emit('newRound', room=table_id)
     deal(table_id)

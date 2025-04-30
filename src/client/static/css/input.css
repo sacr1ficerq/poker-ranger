@@ -212,6 +212,12 @@ body {
 }
 
 /* Modals */
+#create-modal {
+    @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10;
+}
+#game-submit {
+    @apply w-full bg-gray-800 text-white py-2 rounded-lg;
+}
 #username-modal {
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-10;
 }
