@@ -50,7 +50,7 @@ export const ActionsView = {
         const delta = maxBet - heroBet;
         console.log('Max bet: ', maxBet)
 
-        return m('#actions', 
+        return m('#actions',
             m('div', {class: 'flex justify-center space-x-4 mb-4'}, [
                 m('button#btn-fold', {onclick: () => act(Action.FOLD, 0, this.valid)}, 'Fold'),
                 callable? 

@@ -45,8 +45,8 @@ export const title = {
         const tableId = vnode.attrs.tableId;
         console.assert(tableId != undefined, 'tableId expected');
         return m('div', {class: 'text-center mb-8'}, [
-            m('h1', {class: 'text-4xl font-bold text-gray-800 mb-2'}, 'POKER RANGER'),
-            m('div', {class: 'flex justify-center space-x-4 text-sm text-gray-600'},
+            m('h1', {class: 'text-5xl font-bold text-gray-800 mb-2'}, 'POKER RANGER'),
+            m('div', {class: 'flex justify-center space-x-4 text-base text-gray-600'},
                 m('p', ['table ID: ', m('span', {class: 'font-mono'}, tableId)])
             )
         ])
@@ -56,7 +56,7 @@ export const title = {
 export const TableView = {
     view: function({attrs}) {
         const {gameState} = attrs;
-        return m('div', {class: 'poker-table'}, [
+        return m('div', [
             m('#community-cards', {class: 'board'}, gameState.board.map(
                 (c) => m(card, {card: c})
             )),
@@ -67,40 +67,25 @@ export const TableView = {
 
 export const GameStart = {
     oninit: function() {
-        this.valid = false;
         this.startingPot = 0;
     },
 
     validateInput: function(pot, bb=1, stack=100) {
         this.startingPot = pot;
-        this.valid = pot >= 2 * bb && pot < stack;
     },
 
     view: function({attrs}) {
         const {startGame, canStart} = attrs;
-        return m('div', {class: ''},[
-            m('div', {class: 'flex justify-center mt-24'},
+        return m('div', 
+            m('div', {class: 'flex justify-center'},
                 m('button#start-table', {
-                    class: `btn-primary medium ${ (this.valid && canStart)? '': 'disabled'}`,
+                    class: `btn-primary medium ${ (canStart)? '': 'disabled'}`,
                     onclick: () => {
-                        console.log('starting pot:', this.startingPot);
-                        startGame(this.startingPot);
+                        startGame();
                     }
                 }, 'Start table'), 
             ),
-            m('div', {class: 'flex justify-center'}, 
-                m('input#starting-pot', {
-                    class: 'w-32 pl-2 mt-2 border border-gray-200 rounded-lg',
-                    type: 'number',
-                    placeholder: 'Starting pot',
-                    oninput: (e) => {
-                        const pot = e.target.value.trim();
-                        console.assert(pot != undefined, 'pot undefined');
-                        this.validateInput(pot);
-                    }
-                })
-            )
-        ])
+        )
     }
 }
 
@@ -108,7 +93,7 @@ export const RoundStart = {
     view: function({attrs}) {
         const {startRound} = attrs;
 
-        return m('div', {class: 'flex justify-center mt-24'}, [
+        return m('div', {class: 'flex justify-center'}, [
             m('button#start-round', {
                 class: 'btn-secondary medium',
                 onclick: () => {

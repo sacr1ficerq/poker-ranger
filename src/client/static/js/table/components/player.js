@@ -12,7 +12,9 @@ export class Player {
     constructor(name, stack) {
         this.name = name;
         this.bet = 0;
+        this.lastAction = '';
         this.stack = stack;
+        this.profit = 0;
         this._depth = stack;
         this.state = PlayerState.BASE;
         this.cards = [null, null];
@@ -20,11 +22,22 @@ export class Player {
         this.position = 'BB'
     }
 
-    update(player) {
+    update(player, button) {
         console.log('player updated to ', player);
         this.name = player.name
         this.stack = player.stack;
-        this.state = player.state;
+        if (button != null) {
+            this.position = button === this.name? 'D' : 'BB';
+        }
+        if (player.state != null) {
+            this.state = player.state;
+        }
+        if (player.profit != null) {
+            this.profit = player.profit;
+        }
+        if (player.lastAction != null) {
+            this.lastAction = player.lastAction;
+        }
         if (player.bet != null){
             this.bet = player.bet;
         }
@@ -63,7 +76,7 @@ export const HeroView = {
         console.log('rendering cards:', hero.cards);
         return m('#hero', {class: 'player-area absolute left-10 ' + hero.state}, [
             m('div', {class: 'player-items'}, [
-                m('div.player-position', hero.position),
+                m('div.player-position', {class: `bg-${hero.position == 'D' ? 'yellow-600': 'gray-100'}`}, hero.position),
                 m('div.player-name', hero.name),
                 m('div.player-stack', hero.stack),
                 m('div.player-profit text-win', hero.profit),
@@ -71,7 +84,7 @@ export const HeroView = {
                     m(card, {key: hero.cards[0], card: hero.cards[0]}),
                     m(card, {key: hero.cards[1], card: hero.cards[1]})
                 ]),
-                m('div.bet-placed.center-x', hero.bet)
+                m('div.bet-placed.center-x', `Bet: ${hero.bet}`)
             ])
         ])
     }
@@ -82,7 +95,7 @@ export const VillainView = {
         const villain = attrs.villain;
         return m('#villain', {class: 'player-area absolute right-10 ' + villain.state}, [
             m('div', {class: 'player-items'}, [
-                m('div.player-position', villain.position),
+                m('div.player-position', {class: `bg-${villain.position == 'D' ? 'yellow-600': 'gray-100'}`}, villain.position),
                 m('div.player-name', villain.name),
                 m('div.player-stack', villain.stack),
                 m('div.player-profit text-win', villain.profit),
@@ -90,7 +103,7 @@ export const VillainView = {
                     m(card, {key: villain.cards[0], card: villain.cards[0]}),
                     m(card, {key: villain.cards[1], card: villain.cards[1]})
                 ]),
-                m('div.bet-placed.center-x', villain.bet)
+                m('div.bet-placed.center-x', `Bet: ${villain.bet}`)
             ])
         ])
     }

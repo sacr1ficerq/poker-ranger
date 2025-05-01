@@ -11,7 +11,7 @@ class lobbyHeader {
             m('div', 'Status'),
             m('div', m('button', {
                 onclick: () => {console.log('refresh'); this.refresh()}, 
-                class: 'text-blue-500 hover:text-blue-600 px-0 text-left'}, 
+                class: 'text-blue-500 hover:text-blue-600 px-0 bg-transparent shadow-none text-left'}, 
                 'Refresh'))])
     }
 };

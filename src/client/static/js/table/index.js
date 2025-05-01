@@ -21,6 +21,8 @@ const PokerTable = {
     gameState: new GameState(),
     oninit: function() {
         const pathSegments = window.location.pathname.split('/');
+        this.hero.position = 'D';
+        this.villain.position = 'BB';
         this.state.tableId = pathSegments[pathSegments.length - 1];
         this.socket = window.io();
         
@@ -48,14 +50,14 @@ const PokerTable = {
         console.log('hero before update:', this.hero);
         const hero = tableState.players.find(p => p.name === this.hero.name);
         console.assert(hero != undefined, 'No hero found in players');
-        this.hero.update(hero);
+        this.hero.update(hero, tableState.button);
         console.log('hero updated to:', this.hero);
 
         const villain = tableState.players.find(p => p.name === this.villain.name);
         console.assert(villain != undefined, 'No villain found in players');
         this.villain.update(villain);
         
-        this.gameState.update(tableState.round);
+        this.gameState.update(tableState.round, tableState.button);
         console.log('state updated to', tableState);
         
         m.redraw();
@@ -102,16 +104,13 @@ const PokerTable = {
         this.state.rangeSet = true;
         m.redraw();
     },
-    startGame: function (startingPot){
-        console.assert(startingPot != undefined);
-        console.log('Starting game with pot:', startingPot); 
+    startGame: function (){
         if (this.state.gameStarted) return;
         this.state.gameStarted = true;
         if (this.state.canStart) {
             this.socket.emit('startTable', {
                 tableId: this.state.tableId,
                 heroName: this.hero.name,
-                startingPot: startingPot
             });
             this.state.gameStarted = true;
         } else {
@@ -155,30 +154,32 @@ const PokerTable = {
                 submit: (matrix) => this.selectRange(matrix)}),
             // Main Game Area
             m('div', {
-                class: 'flex-1 flex items-center justify-center p-4 relative'}, [
-                // Game Table
-                m(TableView, {
-                    gameState: this.gameState,
-                    heroBet: this.hero.bet, 
-                    villainBet: this.villain.bet
-                }),
-                // Hero (left)
-                m(HeroView, {hero: this.hero}),
-                // Villain (right)
-                m(VillainView, {villain: this.villain}),
-            ]),
-            this.state.gameStarted && this.hero.state == 'acting' && 
-                m(ActionsView, {
-                    gameState: this.gameState, 
-                    act: (action, amount=0.0, valid=true) => 
-                        this.act(action, amount, valid),
-                    heroBet: this.hero.bet
-                }),
-            this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
-                startRound: () => this.startRound()}),
-            !this.state.gameStarted && m(GameStart, {
-                startGame: (pot) => this.startGame(pot),
-                canStart: this.state.canStart})
+                class: 'flex-1 flex items-center justify-center p-4 relative'}, 
+                m('div', {class: 'poker-table'}, [
+                    // Game Table
+                    m(TableView, {
+                        gameState: this.gameState,
+                    }),
+                    // Hero (left)
+                    m(HeroView, {hero: this.hero}),
+                    // Villain (right)
+                    m(VillainView, {villain: this.villain}),
+                ])
+            ),
+            m('div', {class: 'h-48'}, [
+                this.state.gameStarted && this.hero.state == 'acting' && 
+                    m(ActionsView, {
+                        gameState: this.gameState, 
+                        act: (action, amount=0.0, valid=true) => 
+                            this.act(action, amount, valid),
+                        heroBet: this.hero.bet
+                    }),
+                this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
+                    startRound: () => this.startRound()}),
+                !this.state.gameStarted && m(GameStart, {
+                    startGame: () => this.startGame(),
+                    canStart: this.state.canStart})
+            ])
         ])
     },
 
