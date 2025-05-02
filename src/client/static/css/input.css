@@ -89,7 +89,7 @@ body {
     top: -12px;
     font-size: 0.75rem;
 
-    @apply flex absolute center-x w-8 h-8 rounded-full font-bold justify-center bg-yellow-600 text-gray-800;
+    @apply flex absolute center-x w-8 h-8 rounded-full font-bold justify-center text-gray-800;
 }
 
 .player-name {

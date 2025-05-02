@@ -46,6 +46,7 @@ const PokerTable = {
     },
     update: function(tableState) {
         this.gameState.button = tableState.button;
+        console.log('button: ', tableState.button);
 
         console.log('hero before update:', this.hero);
         const hero = tableState.players.find(p => p.name === this.hero.name);
@@ -55,7 +56,7 @@ const PokerTable = {
 
         const villain = tableState.players.find(p => p.name === this.villain.name);
         console.assert(villain != undefined, 'No villain found in players');
-        this.villain.update(villain);
+        this.villain.update(villain, tableState.button);
         
         this.gameState.update(tableState.round, tableState.button);
         console.log('state updated to', tableState);
@@ -172,7 +173,9 @@ const PokerTable = {
                         gameState: this.gameState, 
                         act: (action, amount=0.0, valid=true) => 
                             this.act(action, amount, valid),
-                        heroBet: this.hero.bet
+                        heroBet: this.hero.bet,
+                        heroStack: this.hero.stack,
+                        villainBet: this.villain.stack
                     }),
                 this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
                     startRound: () => this.startRound()}),

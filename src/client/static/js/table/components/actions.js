@@ -32,6 +32,7 @@ const sizingsOOPSRP = {
 export const ActionsView = {
     validateBetAmount: function(amount, minBet, maxBet) {
         this.valid = amount >= minBet && amount <= maxBet;
+        console.log('valid bet: ', this.valid, minBet, maxBet)
         m.redraw();
     },
     getBetAmount: function() {
@@ -40,16 +41,19 @@ export const ActionsView = {
         return parseFloat(betAmount.value);
     },
     view: function({attrs}) {
-        const {maxBet, minBetAmount, maxBetAmount} = attrs.gameState;
+        const {maxBet, minBetAmount, maxBetAmount, pot} = attrs.gameState;
+
         const act = attrs.act;
+        const stack = attrs.heroStack;
         const heroBet = attrs.heroBet;
+        const villainBet = attrs.villainBet;
 
         const raisable = maxBet != 0;
         const callable = maxBet != 0 && maxBet != heroBet;
 
         const delta = maxBet - heroBet;
         console.log('Max bet: ', maxBet)
-
+        const sizings = [0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 1.0, 1.25, 1.5];
         return m('#actions',
             m('div', {class: 'flex justify-center space-x-4 mb-4'}, [
                 m('button#btn-fold', {onclick: () => act(Action.FOLD, 0, this.valid)}, 'Fold'),
@@ -73,13 +77,7 @@ export const ActionsView = {
                             onclick: () => {act(Action.BET, this.getBetAmount()), this.valid}}, 'Bet')
                 ]),
             ]),
-            m('div', {class: 'flex w-full bg-secondary/20 rounded-lg overflow-hidden'}, [
-                m('div.sizing-option', '10%'),
-                m('div.sizing-option', '25%'),
-                m('div.sizing-option', '50%'),
-                m('div.sizing-option', '100%'),
-                m('div.sizing-option', 'all-in')
-            ])
+            m(SizingView, {sizings, pot, stack, validate: (amount) => this.validateBetAmount(amount, minBetAmount, maxBetAmount)})
         )
     }
 }
@@ -94,6 +92,13 @@ const Sizing = {
             }
         }
     },
+    clicked: function(amount, validate) {
+        console.log('amount: ', amount);
+        const betAmount = document.getElementById('bet-amount');
+        console.assert(betAmount != undefined, 'no bet-amount elment');
+        betAmount.value = amount;
+        validate(amount);
+    },
     oncreate: function(vnode) {
         document.addEventListener('keydown', vnode.state.keyHandler)
     },
@@ -101,21 +106,28 @@ const Sizing = {
         document.removeEventListener('keydown', vnode.state.keyHandler)
     },
     view: function({attrs}) {
-        const {sizing, idx} = attrs;
+        const {sizing, idx, pot, validate} = attrs;
         const text = (sizing * 100) + '%';
         const k = idx + 1;
-        return m('button', {class: 'sizing'}, [text, m('div', {class: 'hint'}, k)])
+        return m('div.sizing-option', {onclick: () => this.clicked(pot * sizing, validate)},text)
     }
 }
 
 export const SizingView = {
     view: function({attrs}) {
+        const {sizings, pot, stack, validate} = attrs;
+        // console.assert(sizings[street] != undefined, 'wrong sizings ' + sizings[street] + ' ' + street)
 
-        const {sizings, street} = attrs;
-        console.log(sizings);
-        console.assert(sizings[street] != undefined, 'wrong sizings ' + sizings[street] + ' ' + street)
-
-        return m('#sizings', sizings[street].map((sizing, idx) => m(Sizing, {sizing, idx})))
+        return m('div', {class: 'flex w-full bg-secondary/20 rounded-lg overflow-hidden'}, 
+            sizings.map((sizing, idx) => m(Sizing, {sizing, idx, pot, validate})).concat(
+            m('div.sizing-option', {onclick: () => {
+                const betAmount = document.getElementById('bet-amount');
+                console.assert(betAmount != undefined, 'no bet-amount elment');
+                console.assert(stack != undefined, 'no stack');
+                betAmount.value = stack;
+                validate(stack);
+            }},'all-in'))
+        )
     }
 }
 

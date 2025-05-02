@@ -28,6 +28,8 @@ export class Player {
         this.stack = player.stack;
         if (button != null) {
             this.position = button === this.name? 'D' : 'BB';
+            console.log(button);
+            console.log(this.name, ' position: ', this.position);
         }
         if (player.state != null) {
             this.state = player.state;
