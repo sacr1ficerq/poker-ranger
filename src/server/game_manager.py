@@ -5,6 +5,83 @@ import numpy as np
 
 from pokergame import Table, Action, Player, Range
 
+@dataclass
+class PreflopType:
+    # '3bet BUTvsBB 6max 100bb'
+    type: str
+    positions: str
+    tableSize: str
+    depth: float
+    starting_pot: float
+
+    def __repr__(self) -> str:
+        return f"{self.type} {self.positions} {self.tableSize} {self.depth}bb"
+
+class PreflopSpot:
+    def __init__(self, 
+                 starting_pot: float, 
+                 depth: float, 
+                 button_moves: bool = False, 
+                 edit_ranges: bool = True, 
+                 range_ip: Range | None = None, 
+                 range_oop: Range | None = None):
+        self.starting_pot = starting_pot
+        self.depth = depth
+
+        self.button_moves = button_moves
+        self.edit_ranges = edit_ranges
+
+        self.range_ip = range_ip
+        self.range_oop = range_oop
+
+        assert edit_ranges or (range_ip is not None and range_oop is not None)
+
+    
+    def with_type(self, preflop_type: PreflopType):
+        self.starting_pot = preflop_type.starting_pot
+        self.depth = preflop_type.depth
+        
+        self.range_oop, self.range_ip = ranges[str(preflop_type)]
+        
+oop = [
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0],  # AA, AKs...A2s
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.5],  # AKo, KK...K2s
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0],  # AQo, KQo...Q2s
+    [0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0],  # AJo, KJo...J2s
+    [0.0, 0.5, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.5, 0.5],  # ATo, KTo...T2s
+    [0.5, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0],  # A9o, K9o...92s
+    [0.5, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.5, 0.0, 0.0],  # A8o, K8o...82s
+    [1.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.5, 0.5, 1.0, 0.0],  # A7o, K7o...72s
+    [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 1.0, 0.5, 1.0, 0.0],  # A6o, K6o...62s
+    [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.5, 0.5],  # A5o, K5o...52s
+    [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0],  # A4o, K4o...42s
+    [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],  # A3o, K3o...32s
+    [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]   # A2o, K2o...22
+]
+
+ip = [
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # AA, AKs...A2s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # AKo, KK...K2s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # AQo, KQo...Q2s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # AJo, KJo...J2s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # ATo, KTo...T2s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # A9o, K9o...92s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # A8o, K8o...82s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # A7o, K7o...72s
+    [1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # A6o, K6o...62s
+    [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0],  # A5o, K5o...52s
+    [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],  # A4o, K4o...42s
+    [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0],  # A3o, K3o...32s
+    [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]   # A2o, K2o...22
+]
+
+ranges: Dict[str, Tuple[Range, Range]] = {}
+# SRP BBvsBUT 6max 100bb
+base = PreflopType('SRP', 'BUTvsBB', 'HU', 2.5 * 2, 100-2.5)
+ranges[str(base)] = (
+        Range(np.array(oop)),
+        Range(np.array(ip)),
+)
 
 @dataclass
 class TableData:
@@ -21,9 +98,11 @@ class PlayerData:
 class GameManager:
     def __init__(self):
         self.tables: Dict[str, Table] = {}
+        self.ranges_set: Dict[str, bool] = {}
 
-    def create_table(self, starting_pot: float, depth: float, sb: float=0.5, bb: float=1) -> Table:
+    def create_table(self, starting_pot: float, depth: float, preflop_spot: PreflopSpot, sb: float=0.5, bb: float=1) -> Table:
         table_id = self.generate_id()
+        depth = round(depth - starting_pot / 2, 2)
         self.tables[table_id] = Table(table_id, starting_pot, depth, sb, bb)
 
         return self.tables[table_id]
@@ -53,11 +132,11 @@ class GameManager:
     def get_table(self, table_id: str):
         return self.tables[table_id]
 
-    def add_player(self, table_id: str, id: str, name: str, stack: float, preflop_range: List[List[float]]):
+    def add_player(self, table_id: str, id: str, name: str,  preflop_range: List[List[float]], stack: float=None):
         assert self.exists(table_id)
         r = Range(np.array(preflop_range))
         print(f'Range: {r}')
-        self.tables[table_id].add_player(id, name, stack, r)
+        self.tables[table_id].add_player(id, name, r, stack)
 
     def get_player_states(self, table_id: str) -> List[dict]:
         assert self.exists(table_id)

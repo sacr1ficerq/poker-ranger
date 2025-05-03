@@ -40,7 +40,7 @@ def create_table(data):
             'tableId': table.id
         })
     except (KeyError, ValueError) as e:
-        print('error')
+        print('error:', e)
 
 
 # socketio events
@@ -101,13 +101,12 @@ def on_join(data):
     name = data.get('heroName')
     assert name is not None, 'no heroName'
 
-    stack = data.get('stack', 100)
-    assert stack >= 0, 'stack cant be negative'
+    stack = data.get('stack', None)
 
     preflop_range:List[List[str]] | None = data.get('preflopRange')
     assert preflop_range is not None, 'no preflopRange'
 
-    game_manager.add_player(table_id, sid, name, stack, preflop_range)
+    game_manager.add_player(table_id, sid, name, preflop_range, stack)
     join_room(table_id)
     emit('message', f'{name} has joined the table', room=table_id)
 
