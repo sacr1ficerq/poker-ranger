@@ -78,7 +78,7 @@ export const GameStart = {
         const {startGame, canStart} = attrs;
         return m('div', 
             m('div', {class: 'flex justify-center'},
-                m('button#start-table', {
+                m('button#start-table mb-4', {
                     class: `btn-primary medium ${ (canStart)? '': 'disabled'}`,
                     onclick: () => {
                         startGame();

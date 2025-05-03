@@ -1,6 +1,6 @@
 import { TableView, title, GameStart, GameState, RoundStart} from './components/pokerTable.js'
 import { ActionsView, Action } from './components/actions.js'
-import { Player, VillainView, HeroView } from './components/player.js'
+import { Player, PlayerView } from './components/player.js'
 import { modal, rangeModal, Range  } from './components/modal.js';
 import { handle } from'./socket.io.js';
 
@@ -46,7 +46,6 @@ const PokerTable = {
     },
     update: function(tableState) {
         this.gameState.button = tableState.button;
-        console.log('button: ', tableState.button);
 
         console.log('hero before update:', this.hero);
         const hero = tableState.players.find(p => p.name === this.hero.name);
@@ -162,9 +161,9 @@ const PokerTable = {
                         gameState: this.gameState,
                     }),
                     // Hero (left)
-                    m(HeroView, {hero: this.hero}),
+                    m(PlayerView, {pos: 'left-10', player: this.hero}),
                     // Villain (right)
-                    m(VillainView, {villain: this.villain}),
+                    m(PlayerView, {pos: 'right-10', player: this.villain}),
                 ])
             ),
             m('div', {class: 'h-48'}, [
@@ -175,7 +174,7 @@ const PokerTable = {
                             this.act(action, amount, valid),
                         heroBet: this.hero.bet,
                         heroStack: this.hero.stack,
-                        villainBet: this.villain.stack
+                        villainBet: this.villain.bet
                     }),
                 this.state.gameStarted && this.gameState.roundEnded && m(RoundStart, {
                     startRound: () => this.startRound()}),

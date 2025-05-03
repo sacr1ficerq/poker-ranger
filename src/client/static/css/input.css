@@ -89,7 +89,7 @@ body {
     top: -12px;
     font-size: 0.75rem;
 
-    @apply flex absolute center-x w-8 h-8 rounded-full font-bold justify-center text-gray-800;
+    @apply flex absolute center-x w-8 h-8 rounded-full font-bold justify-center;
 }
 
 .player-name {
@@ -117,10 +117,10 @@ body {
     @apply flex justify-center rounded-full p-8 relative bg-gray-800;
 }
 .player-card {
-    @apply flex items-center text-xl justify-center w-24 h-36 mx-1 rounded-lg bg-white shadow-lg;
+    @apply flex items-center text-2xl justify-center w-24 h-36 mx-1 rounded-lg bg-white shadow-lg;
 }
 .community-card {
-    @apply w-24 h-36 rounded bg-white shadow-lg;
+    @apply w-24 h-36 rounded-lg bg-white shadow-lg text-2xl;
 }
 .folded {
     opacity: 0.5;
@@ -132,7 +132,7 @@ body {
     @apply player-area top-1/2 center-x text-white absolute text-center text-3xl;
 }
 .bet-placed {
-    bottom: -18px;
+    bottom: -24px;
 
     @apply center-x absolute text-xl;
 }

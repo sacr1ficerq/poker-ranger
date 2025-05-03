@@ -30,15 +30,17 @@ const sizingsOOPSRP = {
 }
 
 export const ActionsView = {
+    oninit: function() {
+        this.isFocused = false;
+    },
     validateBetAmount: function(amount, minBet, maxBet) {
         this.valid = amount >= minBet && amount <= maxBet;
-        console.log('valid bet: ', this.valid, minBet, maxBet)
         m.redraw();
     },
     getBetAmount: function() {
         const betAmount = document.getElementById('bet-amount');
         console.assert(betAmount != undefined, 'no bet-amount elment');
-        return parseFloat(betAmount.value);
+        return Math.round(parseFloat(betAmount.value)*100)/100;
     },
     view: function({attrs}) {
         const {maxBet, minBetAmount, maxBetAmount, pot} = attrs.gameState;
@@ -66,7 +68,9 @@ export const ActionsView = {
                         placeholder: 'Amount',
                         oninput: (e) => {
                             this.validateBetAmount(e.target.value, minBetAmount, maxBetAmount);
-                        }
+                        },
+                        onfocus: () => { this.isFocused = true; },
+                        onblur: () => { this.isFocused = false; }
                     }),
                     raisable? 
                         m('button#btn-raise', {
@@ -77,7 +81,15 @@ export const ActionsView = {
                             onclick: () => {act(Action.BET, this.getBetAmount()), this.valid}}, 'Bet')
                 ]),
             ]),
-            m(SizingView, {sizings, pot, stack, validate: (amount) => this.validateBetAmount(amount, minBetAmount, maxBetAmount)})
+            m(SizingView, {
+                sizings,
+                pot,
+                stack, 
+                heroBet,
+                villainBet,
+                focused: () => this.isFocused,
+                validate: (amount) => this.validateBetAmount(amount, minBetAmount, maxBetAmount)
+            })
         )
     }
 }
@@ -88,6 +100,11 @@ const Sizing = {
             const k = vnode.attrs.idx + 1;
             if (e.key === k.toString()) {
                 console.log(k + ' pressed');
+                if (vnode.attrs.focused()) {
+                    return;
+                }
+                const betAmount = document.getElementById('bet-amount');
+                console.assert(betAmount != undefined, 'no bet-amount elment');
                 vnode.dom.click()
             }
         }
@@ -106,20 +123,30 @@ const Sizing = {
         document.removeEventListener('keydown', vnode.state.keyHandler)
     },
     view: function({attrs}) {
-        const {sizing, idx, pot, validate} = attrs;
+        const {sizing, idx, pot, validate, toCall} = attrs;
         const text = (sizing * 100) + '%';
         const k = idx + 1;
-        return m('div.sizing-option', {onclick: () => this.clicked(pot * sizing, validate)},text)
+        var size = pot * sizing + toCall;
+        if (sizing === 0.66) {
+            size = pot * 2 / 3 + toCall;
+        }
+        if (sizing === 0.33) {
+            size = pot / 3 + toCall;
+        }
+        return m('div.sizing-option', {onclick: () => this.clicked(Math.round((size)*100)/100, validate)},text)
     }
 }
 
 export const SizingView = {
     view: function({attrs}) {
-        const {sizings, pot, stack, validate} = attrs;
+        const {sizings, pot, stack, focused, validate, heroBet, villainBet} = attrs;
+        const c = villainBet - heroBet; // to call
+        const s = pot + c;
+        console.log('bets:', heroBet, villainBet, pot);
         // console.assert(sizings[street] != undefined, 'wrong sizings ' + sizings[street] + ' ' + street)
 
         return m('div', {class: 'flex w-full bg-secondary/20 rounded-lg overflow-hidden'}, 
-            sizings.map((sizing, idx) => m(Sizing, {sizing, idx, pot, validate})).concat(
+            sizings.map((sizing, idx) => m(Sizing, {focused, sizing, idx, pot: s, validate, toCall: c})).concat(
             m('div.sizing-option', {onclick: () => {
                 const betAmount = document.getElementById('bet-amount');
                 console.assert(betAmount != undefined, 'no bet-amount elment');

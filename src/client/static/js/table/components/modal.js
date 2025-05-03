@@ -56,7 +56,6 @@ export class RangeView {
         const submitBtn = document.getElementById('range-submit');
         console.assert(submitBtn);
         const s = this.matrix.flat().reduce((sum, cell) => sum + cell, 0);
-        console.log('sum:', s);
         if (s == 0) {
             this.valid = false;
         } else {
@@ -80,34 +79,27 @@ export class RangeView {
                             class: `${i === j? 'border-gray-200 border-2': ''}`,
                             onclick: (event) => {
                                 if (event.shiftKey) {
-                                    console.log('Shift key was held down during click!');
-                                    console.log(i, j, this.matrix[i][j]);
                                     if (i == j) {
                                         for (var y = 0; y <= i; ++y) {
-                                            console.log(y, y, this.matrix[y][y]);
                                             const prob = this.matrix[y][y];
-                                            const newProb = prob >= 1 ? 0 : Math.min(1, prob + 1);
+                                            const newProb = 1;
                                             this.matrix[y][y] = newProb;
                                         }
                                     } else if (i < j) {
                                         for (var x = i; x <= j; ++x) {
-                                            console.log(i, x, this.matrix[i][x]);
                                             const prob = this.matrix[i][x];
-                                            const newProb = prob >= 1 ? 0 : Math.min(1, prob + 1);
+                                            const newProb = 1;
                                             this.matrix[i][x] = newProb;
                                         }
                                     }  else if (i > j) {
                                         for (var y = j; y <= i; ++y) {
-                                            console.log(y, j, this.matrix[y][j]);
                                             const prob = this.matrix[y][j];
-                                            const newProb = prob >= 1 ? 0 : Math.min(1, prob + 1);
+                                            const newProb = 1;
                                             this.matrix[y][j] = newProb;
                                         }
                                     }
 
                                 } else {
-                                    console.log('Shift key was NOT pressed.');
-                                    console.log(i, j, this.matrix[i][j]);
                                     const prob = this.matrix[i][j];
                                     const newProb = prob >= 1 ? 0 : Math.min(1, prob + 1);
                                     this.matrix[i][j] = newProb;
