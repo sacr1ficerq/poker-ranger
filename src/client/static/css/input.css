@@ -62,11 +62,9 @@ body {
 
 .player-items {
     background-color: rgba(74, 85, 104, 0.8);
-    border-radius: 0.75rem;
     padding: 0.75rem;
-    color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
+    @apply relative rounded-xl text-white;
 }
 
 
@@ -89,12 +87,16 @@ body {
     color: #4a5568;
     border-right: 1px solid rgba(74, 85, 104, 0.3);
     transition: background-color 0.2s;
+    @apply relative bg-none rounded-none shadow-none;
 }
 .sizing-option:last-child {
     border-right: none;
 }
 .sizing-option:hover {
     background-color: rgba(0, 0, 0, 0.1);
+}
+.sizing-option:focus {
+    @apply outline-2 outline-offset-2 outline-gray-800;
 }
 
 .player-position {
@@ -131,10 +133,10 @@ body {
     @apply flex justify-center rounded-full p-8 relative bg-gray-800;
 }
 .player-card {
-    @apply flex items-center text-2xl justify-center w-24 h-36 mx-1 rounded-lg bg-white shadow-lg;
+    @apply flex items-center text-3xl justify-center w-24 h-36 mx-1 rounded-lg bg-white shadow-lg;
 }
 .community-card {
-    @apply w-24 h-36 rounded-lg bg-white shadow-lg text-2xl;
+    @apply w-24 h-36 rounded-lg bg-white shadow-lg text-3xl;
 }
 .folded {
     opacity: 0.5;
@@ -154,13 +156,13 @@ body {
     @apply flex justify-center space-x-2 absolute center-x center-y; 
 }
 .acting {
-    @apply border-yellow-500 rounded-xl border-4;
+    @apply border-yellow-500 rounded-2xl border-4;
 }
 .winning {
-    @apply border-teal-500 rounded-xl border-4;
+    @apply border-teal-500 rounded-2xl border-4;
 }
 .all-in {
-    @apply border-red-500 rounded-xl border-4;
+    @apply border-red-500 rounded-2xl border-4;
 }
 
 /* Actions */
@@ -170,6 +172,7 @@ body {
 #btn-fold {
     background-color: #f56565;
     color: white;
+    @apply w-36;
 }
 #btn-fold:hover {
     background-color: #e53e3e;
@@ -177,6 +180,7 @@ body {
 #btn-check {
     background-color: #4a5568;
     color: white;
+    @apply w-36;
 }
 #btn-check:hover {
     background-color: #2d3748;
@@ -185,19 +189,32 @@ body {
 #btn-call {
     background-color: #d4af37;;
     color: white;
+    @apply w-36;
 }
 #btn-call:hover {
     background-color: #b08c1a;
     color: white;
+    @apply w-36;
 }
 #btn-bet, #btn-raise {
     background-color: #48bb78;
     color: white;
+    @apply w-36;
 }
 #btn-bet:hover, #btn-raise:hover {
     background-color: #38a169;
     color: white;
 }
+
+.hint {
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    right: 5px;
+    font-size: 0.75rem;
+
+    @apply absolute w-4 h-4 rounded-full justify-center z-10 center-y font-mono text-center;
+}
+
 
 /* Modals */
 #create-modal {

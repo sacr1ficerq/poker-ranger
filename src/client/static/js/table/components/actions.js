@@ -29,6 +29,29 @@ const sizingsOOPSRP = {
     'flop': [0.25, 0.4, 0.75, 1.5, 'all-in'],
 }
 
+const ActionButton = {
+    oninit: function (vnode) {
+        const { k } = vnode.attrs;
+        console.log("k: \'"+ k + "\'");
+        vnode.state.keyHandler = (e) => {
+            if (e.key === k) {
+                console.log(k + ' pressed');
+                vnode.dom.click();
+            }
+        }
+    },
+    view: function({attrs}) {
+        const {k, txt} = attrs;
+        return m('button.relative', attrs, [txt, m('div', {class: 'hint text-white'}, k)]);
+    },
+    oncreate: function(vnode) {
+        document.addEventListener('keydown', vnode.state.keyHandler)
+    },
+    onremove: function(vnode) {
+        document.removeEventListener('keydown', vnode.state.keyHandler)
+    }
+}
+
 export const ActionsView = {
     oninit: function() {
         this.isFocused = false;
@@ -55,13 +78,13 @@ export const ActionsView = {
 
         const delta = maxBet - heroBet;
         console.log('Max bet: ', maxBet)
-        const sizings = [0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 1.0, 1.25, 1.5];
+        const sizings = [0.25, 0.4, 0.33, 0.5, 0.66, 0.75, 1.0, 1.5, 2.0];
         return m('#actions',
             m('div', {class: 'flex justify-center space-x-4 mb-4'}, [
-                m('button#btn-fold', {onclick: () => act(Action.FOLD, 0, this.valid)}, 'Fold'),
+                m(ActionButton, {id: 'btn-fold', onclick: () => act(Action.FOLD, 0, this.valid), txt: 'Fold', k: 'f'}),
                 callable? 
-                    m('button#btn-call', {onclick: () => act(Action.CALL, delta, this.valid)}, 'Call'):
-                    m('button#btn-check', {onclick: () => act(Action.CHECK, 0, this.valid)}, 'Check'),
+                    m(ActionButton, {id: 'btn-call', onclick: () => act(Action.CALL, delta, this.valid), txt: 'Call', k: 'c'}):
+                    m(ActionButton, {id: 'btn-check', onclick: () => act(Action.CHECK, 0, this.valid), txt: 'Check', k: 'x'}),
                 m('div', {class: 'flex space-x-2'}, [
                     m('input#bet-amount', {
                         type: 'number',
@@ -73,12 +96,17 @@ export const ActionsView = {
                         onblur: () => { this.isFocused = false; }
                     }),
                     raisable? 
-                        m('button#btn-raise', {
+                        m(ActionButton, {id: 'btn-raise',
+                            onclick: () => {act(Action.RAISE, this.getBetAmount(), this.valid);},
                             class: this.valid? '': 'disabled',
-                            onclick: () => {act(Action.RAISE, this.getBetAmount(), this.valid);}}, 'Raise') :
-                        m('button#btn-bet', {
+                            txt: 'Raise',
+                            k: 'r'}) :
+
+                        m(ActionButton, {id: 'btn-bet',
+                            onclick: () => {act(Action.BET, this.getBetAmount()), this.valid},
                             class: this.valid? '': 'disabled',
-                            onclick: () => {act(Action.BET, this.getBetAmount()), this.valid}}, 'Bet')
+                            txt: 'Bet',
+                            k: 'b'})
                 ]),
             ]),
             m(SizingView, {
@@ -105,7 +133,8 @@ const Sizing = {
                 }
                 const betAmount = document.getElementById('bet-amount');
                 console.assert(betAmount != undefined, 'no bet-amount elment');
-                vnode.dom.click()
+                vnode.dom.click();
+                vnode.dom.focus()
             }
         }
     },
@@ -133,7 +162,9 @@ const Sizing = {
         if (sizing === 0.33) {
             size = pot / 3 + toCall;
         }
-        return m('div.sizing-option', {onclick: () => this.clicked(Math.round((size)*100)/100, validate)},text)
+        return m('button.sizing-option', 
+            {onclick: () => this.clicked(Math.round((size)*100)/100, validate)},
+            [text, m('div', {style: "right: 1px;",class: 'hint text-gray-800'}, k)])
     }
 }
 
@@ -145,15 +176,15 @@ export const SizingView = {
         console.log('bets:', heroBet, villainBet, pot);
         // console.assert(sizings[street] != undefined, 'wrong sizings ' + sizings[street] + ' ' + street)
 
-        return m('div', {class: 'flex w-full bg-secondary/20 rounded-lg overflow-hidden'}, 
+        return m('div', {class: 'flex w-full rounded-lg'}, 
             sizings.map((sizing, idx) => m(Sizing, {focused, sizing, idx, pot: s, validate, toCall: c})).concat(
-            m('div.sizing-option', {onclick: () => {
+            m('button.sizing-option', {onclick: () => {
                 const betAmount = document.getElementById('bet-amount');
                 console.assert(betAmount != undefined, 'no bet-amount elment');
                 console.assert(stack != undefined, 'no stack');
                 betAmount.value = stack;
                 validate(stack);
-            }},'all-in'))
+            }}, 'all-in'))
         )
     }
 }

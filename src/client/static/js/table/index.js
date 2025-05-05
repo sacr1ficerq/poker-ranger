@@ -11,7 +11,8 @@ const PokerTable = {
         depth: 100,
         loggedIn: false,
         rangeSet: false,
-
+        
+        handsPlayed: 0,
         gameStarted: false,
         canStart: false,
     },
@@ -45,6 +46,7 @@ const PokerTable = {
         m.redraw();
     },
     update: function(tableState) {
+        this.state.handsPlayed = tableState.handsPlayed;
         this.gameState.button = tableState.button;
 
         console.log('hero before update:', this.hero);
@@ -105,6 +107,7 @@ const PokerTable = {
         m.redraw();
     },
     startGame: function (){
+        if (!this.state.canStart) return;
         if (this.state.gameStarted) return;
         this.state.gameStarted = true;
         if (this.state.canStart) {
@@ -145,7 +148,7 @@ const PokerTable = {
     view: function(vnode) {
         console.log('game state: ', this.gameState)
         return m('div', {class: 'h-screen flex flex-col'}, [
-            m(title, {tableId: this.state.tableId}),
+            m(title, {tableId: this.state.tableId, handsPlayed: this.state.handsPlayed}),
             !this.state.loggedIn && m(modal, {
                 villainName: this.villain.name, 
                 submit: (username) => this.submit(username)}),

@@ -132,7 +132,7 @@ def handle_disconnect():
     for game_id in rooms:
         leave_room(room=game_id, sid=player_id)
         if game_manager.exists(game_id):
-            player_name = game_manager.disonnect(player_id, game_id)
+            player_name = game_manager.disconnect(player_id, game_id)
             msg = f'{player_name} has disconnected'
             emit('message', msg, room=table_id) # type: ignore[attr-defined]
             res = game_manager.get_player_states(game_id)

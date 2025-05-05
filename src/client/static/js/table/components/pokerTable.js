@@ -41,13 +41,16 @@ export class GameState {
 
 
 export const title = {
-    view: function(vnode) {
-        const tableId = vnode.attrs.tableId;
+    view: function({attrs}) {
+        const {tableId, handsPlayed} = attrs;
         console.assert(tableId != undefined, 'tableId expected');
         return m('div', {class: 'text-center mb-8'}, [
             m('h1', {class: 'text-5xl font-bold text-gray-800 mb-2'}, 'POKER RANGER'),
             m('div', {class: 'flex justify-center space-x-4 text-base text-gray-600'},
-                m('p', ['table ID: ', m('span', {class: 'font-mono'}, tableId)])
+                m('p', ['table ID: ', m('span', {class: 'font-mono'}, tableId)]),
+            ),
+            m('div', {class: 'flex justify-center space-x-4 text-base text-gray-600'}, 
+                m('p', ['hands: ', m('span', {class: 'font-mono'}, handsPlayed)])
             )
         ])
     }
@@ -60,7 +63,7 @@ export const TableView = {
             m('#community-cards', {class: 'board'}, gameState.board.map(
                 (c) => m(card, {card: c})
             )),
-            m('div#pot-display', 'Pot: ' + Math.round(gameState.pot *100) / 100),
+            m('div#pot-display', 'Pot: ' + Math.round(gameState.pot * 100) / 100),
         ])
     }
 }
