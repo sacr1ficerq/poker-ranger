@@ -4,6 +4,10 @@ const createForm = {
     oninit: function() {
         this.validDepth = false;
         this.validPot = false;
+        this.preflopSpot = 'default';
+        this.editRanges = false;
+        this.inPosition = false;
+        this.moveButton = false;
     },
     validateDepth: function(depth) {
         this.validDepth = depth > 0;
@@ -26,10 +30,22 @@ const createForm = {
                 const pot = document.getElementById('starting-pot').value.trim();
                 console.assert(pot != undefined, 'pot element undefined');
 
-                submit(pot, depth);
+                submit(pot, depth, this.preflopSpot, this.inPosition);
             }
         }, [
             m('div', [
+                m('div', [
+                    m('label', {class: 'block text-sm text-gray-600 mb-2', for: 'game-type'}, 'Preflop Spot'),
+                    m('select#game-type', {
+                        class: 'w-full px-4 py-2 border border-gray-200 rounded-lg',
+                        onchange: (e) => {this.preflopSpot = e.target.value; console.log(e.target.value);}
+                    }, [
+                        m('option', {value: 'default'}, 'Custom'),
+                        m('option', {value: 'option A'}, 'SRP BBvsBUT HU 100bb'),
+                        // m('option', {value: 'option B'}, '3BP BBvsBUT HU 100bb'),
+                        // m('option', {value: 'option C'}, 'SRP BBvsBUT 6max 100bb')
+                    ])
+                ]),
                 m('label', {class: 'block text-sm text-gray-600 mb-2', for: 'depth'}, 'Depth (effective stack)'),
                 m('input#depth', {
                     class: 'w-full px-4 py-2 border border-gray-200 rounded-lg',
@@ -51,7 +67,51 @@ const createForm = {
                         console.assert(pot != undefined, 'pot undefined');
                         this.validatePot(pot);
                     }
-                })
+                }),
+                m('div', [
+                    m('label', {class: 'block text-sm text-gray-600 mb-2'}, 'Play in position'),
+                    m('label', {class: 'inline-flex items-center cursor-pointer'}, [
+                        m('input', {
+                            type: 'checkbox',
+                            class: 'sr-only peer',
+                            onchange: (e) => {console.log(e.target.checked); this.inPosition = e.target.checked;}
+                        }),
+                        m('div', {
+                            class: 'toggle peer peer-checked:bg-gray-600 peer-checked:after:translate-x-full'
+                        }),
+                        m('span', {class: 'ml-3'}, `${this.inPosition? 'IP':'OOP'}`)
+                    ])
+                ]),
+                m('div', {class: `${this.preflopSpot == 'default'? 'hidden' : ''}`}, [
+                    m('label', {class: 'block text-sm text-gray-600 mb-2'}, 'Move button'),
+                    m('label', {class: 'inline-flex items-center cursor-pointer'}, [
+                        m('input', {
+                            type: 'checkbox',
+                            class: 'sr-only peer',
+                            onchange: (e) => {console.log(e.target.checked); this.moveButton = e.target.checked;}
+                        }),
+                        m('div', {
+                            class: 'toggle peer peer-checked:bg-gray-600 peer-checked:after:translate-x-full'
+                        }),
+                        m('span', {class: 'ml-3'}, 'Move')
+                    ])
+                ]),
+
+
+                m('div', {class: `${this.preflopSpot == 'default'? 'hidden' : ''}`}, [
+                    m('label', {class: 'block text-sm text-gray-600 mb-2'}, 'Edit Ranges'),
+                    m('label', {class: 'inline-flex items-center cursor-pointer'}, [
+                        m('input', {
+                            type: 'checkbox',
+                            class: 'sr-only peer',
+                            onchange: (e) => {console.log(e.target.checked); this.editRanges = e.target.checked;}
+                        }),
+                        m('div', {
+                            class: 'toggle peer peer-checked:bg-gray-600 peer-checked:after:translate-x-full'
+                        }),
+                        m('span', {class: 'ml-3'}, 'Enable')
+                    ])
+                ])
             ]),
             m('button#game-submit', {
                 class: `${(this.validPot && this.validDepth)? '' : 'disabled'}`,
@@ -95,9 +155,11 @@ const Lobby = {
     createTable: function() {
         this.creating = true;
     },
-    submit: function(pot, depth) {
-        console.log('creating with: ', pot, depth);
-        this.socket.emit('createTable', {startingPot: pot, depth: depth});
+    submit: function(pot, depth, preflopSpot, inPosition) {
+        // this.editRanges = false;
+
+        console.log('creating with: ', pot, depth, 'preflop spot:', preflopSpot, inPosition);
+        this.socket.emit('createTable', {startingPot: pot, depth, preflopSpot, inPosition});
     },
     view: function() {
         const title = m('div', {class:'div flex items-center justify-between mb-8'}, [
@@ -115,7 +177,7 @@ const Lobby = {
             m('div', {class: 'container mx-auto px-4 py-8 max-w-4xl'}, [
                 title, 
                 m(lobbyList, {tables: this.tables, refresh: refresh}),
-                this.creating && m(modal, {submit: (pot, depth) => this.submit(pot, depth)})
+                this.creating && m(modal, {submit: (pot, depth, spot, pos) => this.submit(pot, depth, spot, pos)})
             ])
         )
     }

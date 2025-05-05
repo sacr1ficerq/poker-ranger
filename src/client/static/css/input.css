@@ -22,6 +22,20 @@ body {
     @apply bg-gray-100;
 }
 
+
+.toggle {
+    @apply relative w-11 h-6 bg-gray-200 rounded-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all;
+}
+
+
+.toggle-switch {
+    @apply relative w-11 h-6 bg-gray-300 rounded-full;
+}
+
+.toggle-switch:after {
+    @apply absolute top-0.5 left-[2px] bg-white border-gray-400 border rounded-full h-5 w-5 transition-all;
+}
+
 .btn-primary {
     @apply transition-colors text-white bg-gray-700 hover:bg-gray-800;
 }
@@ -166,12 +180,15 @@ body {
 }
 #btn-check:hover {
     background-color: #2d3748;
+    color: white;
 }
 #btn-call {
     background-color: #d4af37;;
+    color: white;
 }
 #btn-call:hover {
     background-color: #b08c1a;
+    color: white;
 }
 #btn-bet, #btn-raise {
     background-color: #48bb78;
@@ -179,6 +196,7 @@ body {
 }
 #btn-bet:hover, #btn-raise:hover {
     background-color: #38a169;
+    color: white;
 }
 
 /* Modals */

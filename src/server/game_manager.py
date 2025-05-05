@@ -5,6 +5,8 @@ import numpy as np
 
 from pokergame import Table, Action, Player, Range
 
+
+
 @dataclass
 class PreflopType:
     # '3bet BUTvsBB 6max 100bb'
@@ -39,7 +41,7 @@ class PreflopSpot:
     
     def with_type(self, preflop_type: PreflopType):
         self.starting_pot = preflop_type.starting_pot
-        self.depth = preflop_type.depth
+        self.depth = preflop_type.depth - preflop_type.starting_pot / 2
         
         self.range_oop, self.range_ip = ranges[str(preflop_type)]
         
@@ -77,115 +79,83 @@ ip = [
 
 ranges: Dict[str, Tuple[Range, Range]] = {}
 # SRP BBvsBUT 6max 100bb
-base = PreflopType('SRP', 'BUTvsBB', 'HU', 2.5 * 2, 100-2.5)
+base = PreflopType('SRP', 'BUTvsBB', 'HU', 2.5 * 2, 100)
 ranges[str(base)] = (
         Range(np.array(oop)),
         Range(np.array(ip)),
 )
 
 @dataclass
-class TableData:
+class GameData:
     id: str
     players: int
+    range_ip: List[List[float]] | None = None
+    range_oop: List[List[float]] | None = None
 
 
 @dataclass
 class PlayerData:
+    id: str
     name: str
     stack: float
+    preflopRange: List[List[float]]
 
 
-class GameManager:
-    def __init__(self):
-        self.tables: Dict[str, Table] = {}
-        self.ranges_set: Dict[str, bool] = {}
+class Game:
+    def __init__(self, id: str, table: Table, range_oop: Range|None=None, range_ip: Range|None=None):
+        self.id = id
+        self.table = table
+        self.range_ip = range_ip
+        self.range_oop = range_oop
 
-    def create_table(self, starting_pot: float, depth: float, preflop_spot: PreflopSpot, sb: float=0.5, bb: float=1) -> Table:
-        table_id = self.generate_id()
-        depth = round(depth - starting_pot / 2, 2)
-        self.tables[table_id] = Table(table_id, starting_pot, depth, sb, bb)
+    def data(self) -> GameData:
+        if self.range_ip is None or self.range_oop is None:
+            return GameData(self.id, len(self.table.players))
+        return GameData(self.id, len(self.table.players), self.range_ip._range.tolist(), self.range_oop._range.tolist())
 
-        return self.tables[table_id]
+    def get_players(self) -> List[dict]:
+        return [asdict(PlayerData(p.id, p.name, p.stack, p.preflop_range._range.tolist())) for p in self.table.players]
 
-    def exists(self, table_id: str):
-        return table_id in self.tables
+    def get_preflop_ranges(self) -> List:
+        if self.table.button == 0 and len(self.table.players) == 0:
+            # IP
+            return []
+        else:
+            # OOP
+            return []
+    def private_data(self, name: str) -> dict:
+        return self.table.private_data(name)
 
-    def generate_id(self) -> str:
-        # Generate unique ID for the table
-        table_id = str(uuid.uuid4())[:8]
-        if self.exists(table_id):
-            return self.generate_id()
-        return table_id
+    def add_player(self, id: str, name: str, stack: float|None, rng: List[List[float]]):
+        if stack == None:
+            stack = self.table.depth
+        p = Player(id, name, stack, Range(np.array(rng)), self.table, 0)
+        self.table.add_player(p)
 
-    def get_tables(self) -> List[dict]:
-        all_tables = self.tables.values()
-        return [asdict(TableData(t.id, len(t.players))) for t in all_tables]
+    def get_player_states(self) -> List[dict]:
+        return [asdict(PlayerData(p.id, p.name, p.stack, p.preflop_range._range.tolist())) for p in self.table.players]
 
-    def get_players(self, table_id: str) -> List[str]:
-        return [p.name for p in self.tables[table_id].players]
 
-    def get_private(self, table_id: str, player_name: str) -> dict | None:
-        if not self.exists(table_id):
+    def disconnect(self, player_id: str) -> str | None:
+        name = None
+        for p in self.table.players:
+            if p.id == player_id:
+                name = p.name
+        if name == None:
             return None
-        return self.tables[table_id].private_data(player_name)
+        self.table.remove_player(name)
+        return name
+    
+    def start_game(self):
+        self.table.start_game()
 
-    def get_table(self, table_id: str):
-        return self.tables[table_id]
+    def get_table_data(self) -> dict:
+        return self.table.data()
 
-    def add_player(self, table_id: str, id: str, name: str,  preflop_range: List[List[float]], stack: float=None):
-        assert self.exists(table_id)
-        r = Range(np.array(preflop_range))
-        print(f'Range: {r}')
-        self.tables[table_id].add_player(id, name, r, stack)
+    def new_round(self):
+        self.table.new_round()
 
-    def get_player_states(self, table_id: str) -> List[dict]:
-        assert self.exists(table_id)
-        table = self.tables[table_id]
-        return [asdict(PlayerData(p.name, p.stack)) for p in table.players]
-
-    def get_player_table(self, player_id: str) -> Tuple[str, Player] | Tuple[None, None]:
-        for table_id, table in self.tables.items():
-            for player in table.players:
-                if player.id == player_id:
-                    return table_id, player
-        return None, None
-
-    def disconnect(self, player_id: str) -> Tuple[str, Player] | Tuple[None, None]:
-        table_id, player = self.get_player_table(player_id)
-        if table_id is None or player is None:
-            return None, None
-        table = self.tables[table_id]
-
-        hero_name = player.name
-        table.remove_player(hero_name)
-
-        if len(table.players) == 0:
-            self.tables.pop(table_id, None)
-            assert not self.exists(table_id)
-            print(f"Table {table_id} removed (no players left)")
-        return table_id, player
-
-    def start_table(self, table_id: str):
-        self.tables[table_id].start_game()
-
-    def get_table_data(self, table_id: str):
-        return self.tables[table_id].data()
-
-    def start_round(self, table_id: str):
-        table = self.tables[table_id]
-        n = len(table.players)
-
-        min_players = 2
-        max_players = 2
-
-        assert n >= min_players, 'not enough players to start the round'
-        assert n <= max_players, 'to many players'
-
-        table.new_round()
-
-    def action(self, table_id: str, hero_name: str, amount: float, action: str):
-        assert self.exists(table_id)
-        table = self.tables[table_id]
+    def action(self, hero_name: str, amount: float, action: str) -> None:
         d = {'bet': Action.BET,
              'check': Action.CHECK,
              'call': Action.CALL,
@@ -193,4 +163,102 @@ class GameManager:
              'fold': Action.FOLD}
 
         print(hero_name, action, amount)
-        table.act(d[action], hero_name, amount)
+        self.table.act(d[action], hero_name, amount)
+
+
+
+class GameManager:
+    def __init__(self):
+        self.games: Dict[str, Game] = {}
+        self.ranges_set: Dict[str, bool] = {}
+
+    def create_game(self,
+                     starting_pot: float,
+                     depth: float,
+                     in_position: bool,
+                     preflop_type_s: str,
+                     move_button: bool=False,
+                     sb: float=0.5,
+                     bb: float=1) -> Table:
+
+        assert preflop_type_s == 'default' or preflop_type_s in ranges
+
+        game_id = self.generate_id()
+        depth = round(depth - starting_pot / 2, 2)
+        table = Table(id=game_id, starting_pot=starting_pot, depth=depth, move_button=move_button, sb=sb, bb=bb)
+        if not in_position:
+            # we will join first and be on button, so we move button to be oop
+            table.button = 1
+        
+        self.games[game_id] = Game(game_id, table)
+        return table
+
+    def exists(self, table_game_id: str):
+        return table_game_id in self.games
+
+    def generate_id(self) -> str:
+        id = str(uuid.uuid4())[:8]
+        if self.exists(id):
+            return self.generate_id()
+        return id
+
+    def get_games(self) -> List[dict]:
+        all_games = self.games.values()
+        return [asdict(g.data()) for g in all_games]
+
+    def get_players(self, game_id: str) -> List[dict]:
+        assert self.exists(game_id)
+        return self.games[game_id].get_players()
+    
+    def get_private(self, game_id: str, player_name: str) -> dict | None:
+        if not self.exists(game_id):
+            return None
+        game = self.games[game_id]
+        return game.private_data(player_name)
+
+    def add_player(self, 
+                   game_id: str, 
+                   player_id: str, 
+                   name: str,  
+                   preflop_range: List[List[float]], 
+                   stack: float|None=None):
+        assert self.exists(game_id)
+        self.games[game_id].add_player(player_id, name, stack, preflop_range)
+
+    def get_player_states(self, game_id: str) -> List[dict]:
+        assert self.exists(game_id)
+        game = self.games[game_id]
+        return game.get_player_states()
+
+    def disconnect(self, player_id: str, game_id: str) -> str | None:
+        game: Game = self.games[game_id]
+        name = game.disconnect(player_id)
+        if len(game.get_players()) == 0:
+            self.games.pop(game_id)
+        return name
+
+    def start_game(self, game_id: str):
+        assert self.exists(game_id)
+        self.games[game_id].start_game()
+
+    def get_table_data(self, game_id: str) -> dict:
+        assert self.exists(game_id)
+        return self.games[game_id].get_table_data()
+
+    def start_round(self, game_id: str):
+        assert self.exists(game_id)
+        self.games[game_id].new_round()
+
+    def action(self, game_id: str, hero_name: str, amount: float, action: str):
+        assert self.exists(game_id)
+        self.games[game_id].action(hero_name, amount, action)
+
+    def get_rooms(self, player_id: str):
+        res = []
+        for game_id, game in self.games.items():
+            if player_id in list(map(lambda p: p.id, game.table.players)):
+                res.append(game_id)
+        return res
+
+    def get_game_data(self, game_id: str):
+        return self.games[game_id].data()

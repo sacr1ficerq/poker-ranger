@@ -1,10 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from game_manager import GameManager
-
 from typing import List
-
 
 app = Flask(
     __name__,
@@ -34,8 +32,13 @@ def create_table(data):
     try:
         starting_pot = float(data['startingPot'])
         depth = float(data['depth'])
+
+        preflop_spot = data['preflopSpot']
+        in_position = data['inPosition']
+
+        print(f'spot: {preflop_spot}\t inpos: {in_position}')
         
-        table = game_manager.create_table(starting_pot, depth)
+        table = game_manager.create_game(starting_pot, depth, in_position, preflop_spot)
         emit('invite', {
             'tableId': table.id
         })
@@ -46,11 +49,13 @@ def create_table(data):
 # socketio events
 @socketio.on('requestTables')
 def send_available_tables():
-    res = game_manager.get_tables()
+    res: List[dict] = game_manager.get_games()
     emit('updateTables', {'tables': res})
 
 
-@socketio.on('requestNames')
+
+# function thats called after player connected and entering range and name
+@socketio.on('requestPreGame')
 def send_players(data):
     table_id = data.get('tableId')
     assert table_id, 'no tableId'
@@ -59,13 +64,16 @@ def send_players(data):
         print(f'{table_id} not found in tables')
         return redirect(url_for('index'))
 
-    res = game_manager.get_players(table_id)
-    emit('updateNames', {'players': res})
+    players: List[dict] = game_manager.get_players(table_id)
+    print('sending players to pre game: ', players)
+
+    game = game_manager.get_game_data(table_id)
+    emit('updatePreGame', {'players': players, 'game': game})
 
 
 @socketio.on('requestPrivate')
 def send_private(data):
-    sid = request.sid
+    sid: str = request.sid # type: ignore[attr-defined]
     table_id = data.get('tableId')
     assert table_id is not None, 'no tableId'
 
@@ -77,20 +85,19 @@ def send_private(data):
         print(f'{table_id} not found in tables')
         return redirect(url_for('index'))
 
-    emit('privateUpdate', res, room=sid)
+    emit('privateUpdate', res, room=sid) # type: ignore[attr-defined]
 
 
-def deal(table_id):
-    assert game_manager.exists(table_id)
-    table = game_manager.get_table(table_id)
-    for player in table.players:
-        res = table.private_data(player.name)
-        emit('privateUpdate', res, room=player.id)
+def deal(game_id):
+    assert game_manager.exists(game_id)
+    for player in game_manager.get_players(game_id):
+        res = game_manager.get_private(game_id, player['name'])
+        emit('privateUpdate', res, room=player['id']) # type: ignore[attr-defined]
 
 
 @socketio.on('join')
 def on_join(data):
-    sid = request.sid
+    sid = request.sid # type: ignore[attr-defined]
     table_id = data.get('tableId')
     assert table_id, 'no tableId'
 
@@ -103,31 +110,33 @@ def on_join(data):
 
     stack = data.get('stack', None)
 
-    preflop_range:List[List[str]] | None = data.get('preflopRange')
+    preflop_range:List[List[float]] | None = data.get('preflopRange')
     assert preflop_range is not None, 'no preflopRange'
 
     game_manager.add_player(table_id, sid, name, preflop_range, stack)
     join_room(table_id)
-    emit('message', f'{name} has joined the table', room=table_id)
+    emit('message', f'{name} has joined the table', room=table_id) # type: ignore[attr-defined]
 
     res = game_manager.get_player_states(table_id)
     print('player states:', res)
-    emit('playersUpdate', res, room=table_id)
+    emit('playersUpdate', res, room=table_id) # type: ignore[attr-defined]
 
 
+# for now just remove player from all rooms after single disconnect
 @socketio.on('disconnect')
 def handle_disconnect():
-    id = request.sid
-    table_id, player = game_manager.disconnect(id)
-    if table_id is not None and player is not None:
-        return
+    player_id = request.sid # type: ignore[attr-defined]
+    rooms = game_manager.get_rooms(player_id)
+    print(f"Player disconnecting from rooms: {rooms}")
 
-    leave_room(table_id)
-    if game_manager.exists(table_id):
-        msg = f'{player.name} has disconnected'
-        emit('message', msg, room=table_id)
-        res = game_manager.get_player_states(table_id)
-        emit('playersUpdate', res, room=table_id)
+    for game_id in rooms:
+        leave_room(room=game_id, sid=player_id)
+        if game_manager.exists(game_id):
+            player_name = game_manager.disonnect(player_id, game_id)
+            msg = f'{player_name} has disconnected'
+            emit('message', msg, room=table_id) # type: ignore[attr-defined]
+            res = game_manager.get_player_states(game_id)
+            emit('playersUpdate', res, room=table_id) # type: ignore[attr-defined]
 
 
 @socketio.on('startTable')
@@ -136,15 +145,15 @@ def on_start(data):
     assert table_id, 'no tableId'
 
     assert game_manager.exists(table_id), f'{table_id} not found in tables'
-    emit('gameStarted', room=table_id)
+    emit('gameStarted', room=table_id) # type: ignore[attr-defined]
 
-    game_manager.start_table(table_id)
+    game_manager.start_game(table_id)
 
-    emit('newRound', room=table_id)
+    emit('newRound', room=table_id) # type: ignore[attr-defined]
     deal(table_id)
 
-    res = game_manager.get_table_data(table_id)
-    emit('tableUpdate', res, room=table_id)
+    res: dict = game_manager.get_table_data(table_id)
+    emit('tableUpdate', res, room=table_id) # type: ignore[attr-defined]
 
 
 @socketio.on('startRound')
@@ -158,38 +167,34 @@ def start_round(data):
 
     game_manager.start_round(table_id)
 
-    emit('newRound', room=table_id)
+    emit('newRound', room=table_id) # type: ignore[attr-defined]
     deal(table_id)
-    res = game_manager.get_table_data(table_id)
-    emit('tableUpdate', res, room=table_id)
+    res: dict = game_manager.get_table_data(table_id)
+    emit('tableUpdate', res, room=table_id) # type: ignore[attr-defined]
 
 
 @socketio.on('action')
 def on_action(data):
-    table_id = data.get('tableId')
-    assert table_id, 'no tableId'
-    assert game_manager.exists(table_id), 'tableId not found in tables'
-
-    hero_name = data.get('heroName')
-    assert hero_name, 'no heroName'
-
-    amount = data.get('amount')
-    assert amount is not None, 'no amount'
-
     try:
-        amount = float(amount)
-    except ValueError:
-        assert False, 'amount is not convertible'
+        table_id = data['tableId']
+        assert game_manager.exists(table_id), 'tableId not found in tables'
 
-    assert amount >= 0, 'amount cant be nagative'
+        hero_name = data['heroName']
+        amount = float(data['amount'])
 
-    action = data.get('action')
-    assert action, 'no action'
+        assert amount >= 0, 'amount cant be nagative'
+
+        action = data['action']
+        assert action, 'no action'
+
+    except (KeyError, ValueError) as e:
+        print('error:', e)
+        return
 
     game_manager.action(table_id, hero_name, amount, action)
 
-    res = game_manager.get_table_data(table_id)
-    emit('tableUpdate', res, room=table_id)
+    res: dict = game_manager.get_table_data(table_id)
+    emit('tableUpdate', res, room=table_id) # type: ignore[attr-defined]
 
 
 if __name__ == '__main__':

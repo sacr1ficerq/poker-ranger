@@ -37,6 +37,7 @@ export class Player {
         }
         if (player.lastAction != null) {
             this.lastAction = player.lastAction;
+            console.log('New last action:', this.lastAction)
         }
         if (player.bet != null){
             this.bet = player.bet;
@@ -65,7 +66,7 @@ export class Player {
     newRound() {
         this.state = PlayerState.BASE;
         this.stack = this._depth;
-        this.cards= [null, null];
+        this.cards = [null, null];
     }
 }
 
@@ -79,13 +80,13 @@ export const PlayerView = {
                     class: `${player.position == 'D' ? 'text-white bg-yellow-600': 'text-black bg-gray-100'}`
                 }, player.position),
                 m('div.player-name', player.name),
-                m('div.player-stack', player.stack),
-                m('div.player-profit text-win', `${player.profit < 0 ? '' : '+'}${player.profit}`),
+                m('div.player-stack', Math.round(player.stack *100) / 100),
+                m('div.player-profit text-win', `${player.profit < 0 ? '' : '+'}${Math.round(player.profit*100)/100}`),
                 m('div.cards-container', [
                     m(card, {key: player.cards[0], card: player.cards[0]}),
                     m(card, {key: player.cards[1], card: player.cards[1]})
                 ]),
-                m('div.bet-placed.center-x', `Bet: ${player.bet}`)
+                m('div.bet-placed.center-x', `${player.lastAction}`)
             ])
         ])
     }

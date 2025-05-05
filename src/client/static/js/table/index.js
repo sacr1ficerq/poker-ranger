@@ -86,7 +86,7 @@ const PokerTable = {
         m.redraw();
     },
     message: function(msg) {
-
+        console.log('Message: ', msg)
     },
     submit: function(username) {
         this.hero.updateName(username);

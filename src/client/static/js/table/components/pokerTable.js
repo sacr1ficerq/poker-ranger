@@ -60,7 +60,7 @@ export const TableView = {
             m('#community-cards', {class: 'board'}, gameState.board.map(
                 (c) => m(card, {card: c})
             )),
-            m('div#pot-display', 'Pot: ' + gameState.pot),
+            m('div#pot-display', 'Pot: ' + Math.round(gameState.pot *100) / 100),
         ])
     }
 }
