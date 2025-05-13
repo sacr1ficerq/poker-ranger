@@ -40,9 +40,19 @@ const PokerTable = {
         // id, players, ip_range, oop_range
         console.log('id :', game.id);
         console.log('players amount:', game.playerAmount);
+        console.log('first player in podition:', game.adminIP);
         console.log('player names:', game.playerNames);
         console.log('ip range :', game.rangeIP);
         console.log('oop range :', game.rangeOOP);
+
+        console.assert(game.id == this.gameState.tableId)
+        const in_position = game.playerAmount == 0? game.adminIP : !game.adminIP;
+        if (game.rangeIP) {
+            this.hero.preflopRange.matrix = (in_position? game.rangeIP : game.rangeOOP);
+            this.villain.preflopRange.matrix = (in_position? game.rangeOOP : game.rangeIP);
+            console.log(`ranges set. hero is ${in_position? 'IP' : 'OOP'}`);
+        }
+
     },
     newRound: function() {
         console.log('new round');
@@ -82,9 +92,10 @@ const PokerTable = {
     updatePlayers: function(playersState) {
         // function for getting players names after villain or hero sits down
         const hero = playersState.find(p => p.name === this.hero.name);
-        console.assert(hero != undefined, `no ${this.hero.name} in` + playersState);
-        
-        this.hero.update(hero, this.gameState.button);
+        if (hero === undefined) console.log(`no ${this.hero.name} in ${playersState}`);
+        if (hero) {
+            this.hero.update(hero, this.gameState.button);
+        }
 
         const villain = playersState.find(p => p.name != this.hero.name);
         if (villain) {
@@ -163,6 +174,7 @@ const PokerTable = {
                 submit: (username) => this.submit(username)}),
             // Preflop range
             !this.state.rangeSet && this.state.loggedIn && m(rangeModal, {
+                matrix: this.hero.preflopRange.matrix,
                 submit: (matrix) => this.selectRange(matrix)}),
             // Main Game Area
             m('div', {

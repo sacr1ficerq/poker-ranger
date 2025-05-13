@@ -53,7 +53,6 @@ def send_available_tables():
     emit('updateTables', {'tables': res})
 
 
-
 # function thats called after player connected and entering range and name
 @socketio.on('requestGame')
 def send_game(data):
@@ -123,7 +122,7 @@ def on_join(data):
 
     players = game_manager.get_players(table_id)
     print('player states:', players)
-    emit('playersUpdate', res, room=table_id) # type: ignore[attr-defined]
+    emit('playersUpdate', players, room=table_id) # type: ignore[attr-defined]
 
     game = game_manager.get_game_data(table_id)
     print('game: ', game)

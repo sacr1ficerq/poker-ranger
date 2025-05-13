@@ -89,6 +89,7 @@ ranges[str(base)] = (
 class GameData:
     id: str
     type: str
+    adminIP: bool
     playerAmount: int
     playerNames: List[str]
     rangeIP: List[List[float]] | None = None
@@ -104,9 +105,10 @@ class PlayerData:
 
 
 class Game:
-    def __init__(self, id: str, preflop_type: str, table: Table, range_oop: Range|None=None, range_ip: Range|None=None):
+    def __init__(self, id: str, preflop_type: str, admin_ip: bool, table: Table, range_oop: Range|None=None, range_ip: Range|None=None):
         self.id = id
         self.prefop_type = preflop_type
+        self.admin_ip = admin_ip
         self.table = table
         self.range_ip = range_ip
         self.range_oop = range_oop
@@ -114,8 +116,8 @@ class Game:
     def data(self) -> GameData:
         names = list(map(lambda p: p.name, self.table.players))
         if self.range_ip is None or self.range_oop is None:
-            return GameData(self.id, self.prefop_type, len(names), names)
-        return GameData(self.id, self.prefop_type, len(names), names, self.range_ip._range.tolist(), self.range_oop._range.tolist())
+            return GameData(self.id, self.prefop_type, self.admin_ip, len(names), names)
+        return GameData(self.id, self.prefop_type, self.admin_ip, len(names), names, self.range_ip._range.tolist(), self.range_oop._range.tolist())
 
     def get_players(self) -> List[dict]:
         return [asdict(PlayerData(p.id, p.name, p.stack, p.preflop_range._range.tolist())) for p in self.table.players]
@@ -194,7 +196,7 @@ class GameManager:
         if preflop_type_s != 'default':
             range_oop, range_ip = ranges[preflop_type_s]
         
-        self.games[game_id] = Game(game_id, preflop_type_s, table, range_oop, range_ip)
+        self.games[game_id] = Game(game_id, preflop_type_s, in_position, table, range_oop, range_ip)
         return table
 
     def exists(self, table_game_id: str):

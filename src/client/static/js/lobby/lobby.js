@@ -2,9 +2,9 @@ import { lobbyList } from "./components/lobbyList.js"
 
 const createForm = {
     oninit: function() {
-        this.validDepth = false;
-        this.validPot = false;
-        this.preflopSpot = 'default';
+        this.validDepth = true;
+        this.validPot = true;
+        this.preflopSpot = 'SRP BUTvsBB HU 5.0bb';
         this.editRanges = false;
         this.inPosition = false;
         this.moveButton = false;
@@ -40,8 +40,8 @@ const createForm = {
                         class: 'w-full px-4 py-2 border border-gray-200 rounded-lg',
                         onchange: (e) => {this.preflopSpot = e.target.value; console.log(e.target.value);}
                     }, [
-                        m('option', {value: 'default'}, 'Custom'),
                         m('option', {value: 'SRP BUTvsBB HU 5.0bb'}, 'SRP BBvsBUT HU 100bb'),
+                        m('option', {value: 'default'}, 'Custom'),
                         // m('option', {value: 'option B'}, '3BP BBvsBUT HU 100bb'),
                         // m('option', {value: 'option C'}, 'SRP BBvsBUT 6max 100bb')
                     ])
@@ -50,23 +50,25 @@ const createForm = {
                 m('input#depth', {
                     class: 'w-full px-4 py-2 border border-gray-200 rounded-lg',
                     type: 'number',
+                    value: 100,
                     placeholder: 'Depth e.g. 100bb',
                     oninput: (e) => {
                         const depth = e.target.value.trim();
                         console.assert(depth != undefined, 'depth undefined');
                         this.validateDepth(depth);
-                    }
+                    },
                 }),
                 m('label', {class: 'block text-sm text-gray-600 mb-2', for: 'staringPot'}, 'Starting pot'),
                 m('input#starting-pot', {
                     class: 'w-full px-4 py-2 border border-gray-200 rounded-lg',
                     type: 'number',
                     placeholder: 'Starting pot e.g. 4bb',
+                    value: 5,
                     oninput: (e) => {
                         const pot = e.target.value.trim();
                         console.assert(pot != undefined, 'pot undefined');
                         this.validatePot(pot);
-                    }
+                    },
                 }),
                 m('div', [
                     m('label', {class: 'block text-sm text-gray-600 mb-2'}, 'Play in position'),

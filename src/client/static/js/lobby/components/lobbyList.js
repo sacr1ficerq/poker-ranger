@@ -19,30 +19,31 @@ class lobbyHeader {
 const empty = m('div', {class: 'px-6 py-8 text-center text-gray-500'}, 'No active tables');
 
 class lobbyItem {
-    view(vnode) {
-        return m('div.lobby-item', {key: vnode.attrs.id}, [
-            m('div', {class: 'font-mono text-gray-600'}, `#${vnode.attrs.id}`),
-            m('div', `${vnode.attrs.players}/2 players`),
-            vnode.attrs.players === 2 ? 
+    view({attrs}) {
+        const {id, playerAmount} = attrs;
+        return m('div.lobby-item', {key: id}, [
+            m('div', {class: 'font-mono text-gray-600'}, `#${id}`),
+            m('div', `${playerAmount}/2 players`),
+            playerAmount === 2 ? 
             m('div', m('span', {class: 'bg-gray-100 text-gray-600 rounded-full small'}, 'Full')) : 
             m('div', m('span', {class: 'bg-green-100 text-green-600 rounded-full small'}, 'Waiting')),
 
-            vnode.attrs.players === 2 ? 
+            playerAmount === 2 ? 
             m('div', {class: 'text-gray-400'}, 'Closed') :
             m('div', 
                 m('a', 
-                    {class: 'font-medium text-green-500 hover:text-green-600', href: `/table/${vnode.attrs.id}`}, 
+                    {class: 'font-medium text-green-500 hover:text-green-600', href: `/table/${id}`}, 
                     'Join'))
         ])
     }
 }
 
 class lobbyItems {
-    view(vnode) {
-        vnode.attrs.tables.sort((a, b) => a.players - b.players);
+    view({attrs}) {
+        attrs.tables.sort((a, b) => a.players - b.players);
         return m('div', {class: 'divide-y divide-gray-100'}, 
-            vnode.attrs.tables.length === 0?
-            empty : vnode.attrs.tables.map((table) => m(lobbyItem, {key: table.id, id: table.id, players: table.players}))
+            attrs.tables.length === 0?
+            empty : attrs.tables.map((table) => m(lobbyItem, {key: table.id, id: table.id, playerAmount: table.playerAmount}))
         )
     }
 }

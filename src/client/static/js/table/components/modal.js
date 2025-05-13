@@ -51,8 +51,13 @@ const usernameForm = {
 
 export class RangeView {
     oninit({attrs}) {
-        this.matrix = Array(13).fill().map(() => Array(13).fill(0));
-        this.valid = false;
+        if (attrs.matrix != null) {
+            this.matrix = attrs.matrix;
+            this.valid = true;
+        } else {
+            this.matrix = Array(13).fill().map(() => Array(13).fill(0));
+            this.valid = false;
+        }
     }
 
     validateRange() {
