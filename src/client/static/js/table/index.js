@@ -1,7 +1,7 @@
 import { TableView, title, GameStart, GameState, RoundStart} from './components/pokerTable.js'
 import { ActionsView, Action } from './components/actions.js'
 import { Player, PlayerView } from './components/player.js'
-import { modal, rangeModal, Range  } from './components/modal.js';
+import { modal, rangeModal, Range, RangeView } from './components/modal.js';
 import { handle } from'./socket.io.js';
 
 const PokerTable = {
@@ -52,7 +52,7 @@ const PokerTable = {
             this.villain.preflopRange.matrix = (in_position? game.rangeOOP : game.rangeIP);
             console.log(`ranges set. hero is ${in_position? 'IP' : 'OOP'}`);
         }
-
+        m.redraw();
     },
     newRound: function() {
         console.log('new round');
@@ -179,6 +179,7 @@ const PokerTable = {
             // Main Game Area
             m('div', {
                 class: 'flex-1 flex items-center justify-center p-4 relative'}, 
+                m(RangeView, {cls: 'mr-10', matrix: this.hero.preflopRange.matrix}),
                 m('div', {class: 'poker-table'}, [
                     // Game Table
                     m(TableView, {
@@ -188,7 +189,8 @@ const PokerTable = {
                     m(PlayerView, {pos: 'left-10', player: this.hero}),
                     // Villain (right)
                     m(PlayerView, {pos: 'right-10', player: this.villain}),
-                ])
+                ]),
+                m(RangeView, {cls: 'ml-10',matrix: this.villain.preflopRange.matrix}),
             ),
             m('div', {class: 'h-48'}, [
                 this.state.gameStarted && this.hero.state == 'acting' && 

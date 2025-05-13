@@ -34,7 +34,7 @@ export class Player {
             this.state = player.state;
         }
         if (player.preflopRange != null) {
-            this.preflopRange = player.preflopRange;
+            this.preflopRange.matrix = player.preflopRange;
             console.log(`${this.name} range updated`);
         }
         if (player.profit != null) {

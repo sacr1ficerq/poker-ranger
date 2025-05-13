@@ -49,7 +49,38 @@ const usernameForm = {
     }
 }
 
-export class RangeView {
+export const RangeView = {
+    view: function({attrs}) {
+        const {matrix, cls} = attrs;
+        console.assert(matrix != undefined, 'wrong matrix');
+        const ranks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+        
+        return m('#range-grid', {class: cls}, 
+            ranks.map((_, i) => 
+                ranks.map((_, j) => {
+                    var prob = 0;
+                    if (matrix) {
+                        prob = matrix[i][j];
+                    }
+                    const bgColor = `hsl(120, 100%, ${100 - (prob * 50)}%)`;
+                    
+                    return m('.range-cell-small', {
+                        style: `background: ${bgColor};`,
+                        class: `${i === j? 'border-gray-200 border-2': ''}`,
+                    }, 
+                        i === j ? `${ranks[i]}${ranks[j]}` : 
+                        i < j ? `${ranks[i]}${ranks[j]}s` : 
+                        `${ranks[j]}${ranks[i]}o`
+                    );
+                })
+            )
+        )
+    }
+}
+
+
+
+export class RangeEdit {
     oninit({attrs}) {
         if (attrs.matrix != null) {
             this.matrix = attrs.matrix;
@@ -154,7 +185,7 @@ export const rangeModal = {
         return m('#range-modal', [
             m('#range-block', [
                 m('h2#range-hint', 'Enter Your Preflop Range'),
-                m(RangeView, attrs)
+                m(RangeEdit, attrs)
             ])
         ])
     }
