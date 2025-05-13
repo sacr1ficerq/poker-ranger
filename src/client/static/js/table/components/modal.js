@@ -62,12 +62,13 @@ export const RangeView = {
                     if (matrix) {
                         prob = matrix[i][j];
                     }
-                    const bgColor = `hsl(120, 100%, ${100 - (prob * 50)}%)`;
+                    const bgColor = `hsl(215, 18%, ${100 - (prob*75)}%)`;
                     
                     return m('.range-cell-small', {
                         style: `background: ${bgColor};`,
                         class: `${i === j? 'border-gray-200 border-2': ''}`,
-                    }, 
+                    },  
+                        prob == 0? '':
                         i === j ? `${ranks[i]}${ranks[j]}` : 
                         i < j ? `${ranks[i]}${ranks[j]}s` : 
                         `${ranks[j]}${ranks[i]}o`

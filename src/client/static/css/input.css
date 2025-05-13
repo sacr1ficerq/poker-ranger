@@ -260,13 +260,13 @@ body {
 }
 #range-grid {
     grid-template-columns: repeat(13, 1fr);
-    @apply grid;
+    @apply grid border-gray-800 border-2;
 }
 .range-cell {
     @apply text-center select-none sm:w-12 sm:h-12 flex items-center justify-center w-12 h-12;
 }
 .range-cell-small {
-    @apply text-xs text-center select-none sm:w-8 sm:h-8 flex items-center justify-center w-8 h-8;
+    @apply text-xs text-center select-none sm:w-8 sm:h-8 flex items-center justify-center w-8 h-8 text-white;
 }
 #range-block {
     @apply bg-white p-6 rounded-lg shadow-lg max-w-2xl border border-gray-100;
