@@ -28,9 +28,14 @@ export class Player {
         this.stack = player.stack;
         if (button != null) {
             this.position = button === this.name? 'D' : 'BB';
+            console.log('new position: ', this.name, button)
         }
         if (player.state != null) {
             this.state = player.state;
+        }
+        if (player.preflopRange != null) {
+            this.preflopRange = player.preflopRange;
+            console.log(`${this.name} range updated`);
         }
         if (player.profit != null) {
             this.profit = player.profit;

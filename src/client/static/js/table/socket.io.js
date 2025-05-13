@@ -1,7 +1,7 @@
 export function handle(socket, pokerTable) {
     socket.on('connect', () => {
         console.log('Connected')
-        socket.emit('requestNames', pokerTable.state);
+        socket.emit('requestGame', pokerTable.state);
     });
 
     socket.on('updateNames', (data) => {
@@ -35,6 +35,12 @@ export function handle(socket, pokerTable) {
         console.log('Players update:');
         console.log(playersState);
         pokerTable.updatePlayers(playersState);
+    });
+
+    socket.on('gameUpdate', (game) => {
+        console.log('gameUpdate:');
+        console.log(game);
+        pokerTable.updateGame(game);
     });
 
     socket.on('message', (message) => {

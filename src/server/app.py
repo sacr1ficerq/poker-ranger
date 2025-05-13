@@ -55,8 +55,8 @@ def send_available_tables():
 
 
 # function thats called after player connected and entering range and name
-@socketio.on('requestPreGame')
-def send_players(data):
+@socketio.on('requestGame')
+def send_game(data):
     table_id = data.get('tableId')
     assert table_id, 'no tableId'
 
@@ -65,10 +65,14 @@ def send_players(data):
         return redirect(url_for('index'))
 
     players: List[dict] = game_manager.get_players(table_id)
-    print('sending players to pre game: ', players)
+    game = game_manager.get_game_data(table_id)
+
+    print('players: ', players)
+    emit('playersUpdate', players)
 
     game = game_manager.get_game_data(table_id)
-    emit('updatePreGame', {'players': players, 'game': game})
+    print('game: ', game)
+    emit('gameUpdate', game)
 
 
 @socketio.on('requestPrivate')
@@ -117,9 +121,13 @@ def on_join(data):
     join_room(table_id)
     emit('message', f'{name} has joined the table', room=table_id) # type: ignore[attr-defined]
 
-    res = game_manager.get_player_states(table_id)
-    print('player states:', res)
+    players = game_manager.get_players(table_id)
+    print('player states:', players)
     emit('playersUpdate', res, room=table_id) # type: ignore[attr-defined]
+
+    game = game_manager.get_game_data(table_id)
+    print('game: ', game)
+    emit('gameUpdate', {'game': game})
 
 
 # for now just remove player from all rooms after single disconnect
@@ -135,7 +143,7 @@ def handle_disconnect():
             player_name = game_manager.disconnect(player_id, game_id)
             msg = f'{player_name} has disconnected'
             emit('message', msg, room=table_id) # type: ignore[attr-defined]
-            res = game_manager.get_player_states(game_id)
+            res = game_manager.get_players(game_id)
             emit('playersUpdate', res, room=table_id) # type: ignore[attr-defined]
 
 

@@ -1,5 +1,5 @@
 const usernameForm = {
-    oninit: function() {
+    oninit: function(vnode) {
         this.valid = false;
     },
     validateInput: function(username, villainName) {
@@ -28,6 +28,9 @@ const usernameForm = {
             m('div', [
                 m('label', {class: 'block text-base text-gray-600 mb-2', for: 'username'}, 'Username'),
                 m('input#username', {
+                    oncreate: function(vnode) {
+                        vnode.dom.focus(); // Focus the input after DOM creation
+                    },
                     class: 'w-full px-4 py-2 border border-gray-200 rounded-lg',
                     type: 'text',
                     placeholder: 'Enter username',

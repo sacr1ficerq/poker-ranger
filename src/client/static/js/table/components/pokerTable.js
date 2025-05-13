@@ -63,7 +63,7 @@ export const TableView = {
             m('#community-cards', {class: 'board'}, gameState.board.map(
                 (c) => m(card, {card: c})
             )),
-            m('div#pot-display', 'Pot: ' + Math.round(gameState.pot * 100) / 100),
+            (gameState.pot != 0) && m('div#pot-display', 'Pot: ' + Math.round(gameState.pot * 100) / 100)
         ])
     }
 }
@@ -80,9 +80,9 @@ export const GameStart = {
     view: function({attrs}) {
         const {startGame, canStart} = attrs;
         return m('div', 
-            m('div', {class: 'flex justify-center'},
+            m('div', {class: 'flex justify-center mt-4'},
                 m('button#start-table mb-4', {
-                    class: `btn-primary medium ${ (canStart)? '': 'disabled'}`,
+                    class: `btn-primary big ${ (canStart)? '': 'disabled'}`,
                     onclick: () => {
                         startGame();
                     }
@@ -96,9 +96,9 @@ export const RoundStart = {
     view: function({attrs}) {
         const {startRound} = attrs;
 
-        return m('div', {class: 'flex justify-center'}, [
+        return m('div', {class: 'flex justify-center mt-4'}, [
             m('button#start-round', {
-                class: 'btn-secondary medium',
+                class: 'btn-secondary big',
                 onclick: () => {
                     startRound();
                 }

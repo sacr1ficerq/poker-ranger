@@ -36,6 +36,14 @@ const PokerTable = {
             console.assert(names.length > 1, 'too many players');
         }
     },
+    updateGame: function(game) {
+        // id, players, ip_range, oop_range
+        console.log('id :', game.id);
+        console.log('players amount:', game.playerAmount);
+        console.log('player names:', game.playerNames);
+        console.log('ip range :', game.rangeIP);
+        console.log('oop range :', game.rangeOOP);
+    },
     newRound: function() {
         console.log('new round');
         this.state.gameStarted = true;
@@ -47,17 +55,18 @@ const PokerTable = {
     },
     update: function(tableState) {
         this.state.handsPlayed = tableState.handsPlayed;
-        this.gameState.button = tableState.button;
-
+        this.gameState.button = tableState.round.button;
+        console.log('button: ', this.gameState.button);
+            
         console.log('hero before update:', this.hero);
         const hero = tableState.players.find(p => p.name === this.hero.name);
         console.assert(hero != undefined, 'No hero found in players');
-        this.hero.update(hero, tableState.button);
+        this.hero.update(hero, this.gameState.button);
         console.log('hero updated to:', this.hero);
 
         const villain = tableState.players.find(p => p.name === this.villain.name);
         console.assert(villain != undefined, 'No villain found in players');
-        this.villain.update(villain, tableState.button);
+        this.villain.update(villain, this.gameState.button);
         
         this.gameState.update(tableState.round, tableState.button);
         console.log('state updated to', tableState);
@@ -75,11 +84,11 @@ const PokerTable = {
         const hero = playersState.find(p => p.name === this.hero.name);
         console.assert(hero != undefined, `no ${this.hero.name} in` + playersState);
         
-        this.hero.update(hero);
+        this.hero.update(hero, this.gameState.button);
 
         const villain = playersState.find(p => p.name != this.hero.name);
         if (villain) {
-            this.villain.update(villain);
+            this.villain.update(villain, this.gameState.button);
         }
         const n = playersState.length;
         if (n == 2) {

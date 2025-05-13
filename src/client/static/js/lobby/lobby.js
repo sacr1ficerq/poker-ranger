@@ -41,7 +41,7 @@ const createForm = {
                         onchange: (e) => {this.preflopSpot = e.target.value; console.log(e.target.value);}
                     }, [
                         m('option', {value: 'default'}, 'Custom'),
-                        m('option', {value: 'option A'}, 'SRP BBvsBUT HU 100bb'),
+                        m('option', {value: 'SRP BUTvsBB HU 5.0bb'}, 'SRP BBvsBUT HU 100bb'),
                         // m('option', {value: 'option B'}, '3BP BBvsBUT HU 100bb'),
                         // m('option', {value: 'option C'}, 'SRP BBvsBUT 6max 100bb')
                     ])

@@ -45,6 +45,11 @@ body {
 .btn-nice {
     @apply transition-colors text-white bg-green-500 hover:bg-green-600;
 }
+
+.big {
+    @apply px-12 py-6 font-semibold text-2xl;
+}
+
 .medium {
     @apply px-6 py-3 font-medium;
 }
@@ -196,15 +201,30 @@ body {
     color: white;
     @apply w-36;
 }
-#btn-bet, #btn-raise {
+#btn-bet{
     background-color: #48bb78;
     color: white;
     @apply w-36;
 }
-#btn-bet:hover, #btn-raise:hover {
+
+#btn-bet:hover {
     background-color: #38a169;
     color: white;
 }
+
+#btn-raise {
+    color: white;
+    @apply w-36 bg-orange-500;
+}
+
+#btn-raise:hover {
+    background-color: #38a169;
+    color: white;
+    @apply bg-orange-600;
+}
+
+
+
 
 .hint {
     align-items: center;

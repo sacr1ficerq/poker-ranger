@@ -88,9 +88,11 @@ ranges[str(base)] = (
 @dataclass
 class GameData:
     id: str
-    players: int
-    range_ip: List[List[float]] | None = None
-    range_oop: List[List[float]] | None = None
+    type: str
+    playerAmount: int
+    playerNames: List[str]
+    rangeIP: List[List[float]] | None = None
+    rangeOOP: List[List[float]] | None = None
 
 
 @dataclass
@@ -102,16 +104,18 @@ class PlayerData:
 
 
 class Game:
-    def __init__(self, id: str, table: Table, range_oop: Range|None=None, range_ip: Range|None=None):
+    def __init__(self, id: str, preflop_type: str, table: Table, range_oop: Range|None=None, range_ip: Range|None=None):
         self.id = id
+        self.prefop_type = preflop_type
         self.table = table
         self.range_ip = range_ip
         self.range_oop = range_oop
 
     def data(self) -> GameData:
+        names = list(map(lambda p: p.name, self.table.players))
         if self.range_ip is None or self.range_oop is None:
-            return GameData(self.id, len(self.table.players))
-        return GameData(self.id, len(self.table.players), self.range_ip._range.tolist(), self.range_oop._range.tolist())
+            return GameData(self.id, self.prefop_type, len(names), names)
+        return GameData(self.id, self.prefop_type, len(names), names, self.range_ip._range.tolist(), self.range_oop._range.tolist())
 
     def get_players(self) -> List[dict]:
         return [asdict(PlayerData(p.id, p.name, p.stack, p.preflop_range._range.tolist())) for p in self.table.players]
@@ -131,9 +135,6 @@ class Game:
             stack = self.table.depth
         p = Player(id, name, stack, Range(np.array(rng)), self.table, 0)
         self.table.add_player(p)
-
-    def get_player_states(self) -> List[dict]:
-        return [asdict(PlayerData(p.id, p.name, p.stack, p.preflop_range._range.tolist())) for p in self.table.players]
 
 
     def disconnect(self, player_id: str) -> str | None:
@@ -181,7 +182,7 @@ class GameManager:
                      sb: float=0.5,
                      bb: float=1) -> Table:
 
-        assert preflop_type_s == 'default' or preflop_type_s in ranges
+        assert preflop_type_s == 'default' or preflop_type_s in ranges, f'{preflop_type_s} not in {list(ranges.keys())}'
 
         game_id = self.generate_id()
         depth = round(depth - starting_pot / 2, 2)
@@ -189,8 +190,11 @@ class GameManager:
         if not in_position:
             # we will join first and be on button, so we move button to be oop
             table.button = 1
+        range_oop, range_ip = None, None
+        if preflop_type_s != 'default':
+            range_oop, range_ip = ranges[preflop_type_s]
         
-        self.games[game_id] = Game(game_id, table)
+        self.games[game_id] = Game(game_id, preflop_type_s, table, range_oop, range_ip)
         return table
 
     def exists(self, table_game_id: str):
@@ -225,11 +229,6 @@ class GameManager:
         assert self.exists(game_id)
         self.games[game_id].add_player(player_id, name, stack, preflop_range)
 
-    def get_player_states(self, game_id: str) -> List[dict]:
-        assert self.exists(game_id)
-        game = self.games[game_id]
-        return game.get_player_states()
-
     def disconnect(self, player_id: str, game_id: str) -> str | None:
         game: Game = self.games[game_id]
         name = game.disconnect(player_id)
@@ -260,5 +259,5 @@ class GameManager:
                 res.append(game_id)
         return res
 
-    def get_game_data(self, game_id: str):
-        return self.games[game_id].data()
+    def get_game_data(self, game_id: str) -> dict:
+        return asdict(self.games[game_id].data())
