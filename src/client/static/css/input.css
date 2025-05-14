@@ -260,7 +260,7 @@ body {
 }
 #range-grid {
     grid-template-columns: repeat(13, 1fr);
-    @apply grid border-gray-800 border-2;
+    @apply grid;
 }
 .range-cell {
     @apply text-center select-none sm:w-12 sm:h-12 flex items-center justify-center w-12 h-12;

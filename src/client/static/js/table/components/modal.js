@@ -55,7 +55,7 @@ export const RangeView = {
         console.assert(matrix != undefined, 'wrong matrix');
         const ranks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
         
-        return m('#range-grid', {class: cls}, 
+        return m('#range-grid.border-gray-800.border-2', {class: cls}, 
             ranks.map((_, i) => 
                 ranks.map((_, j) => {
                     var prob = 0;

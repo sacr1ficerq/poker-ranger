@@ -78,7 +78,7 @@ export const ActionsView = {
 
         const delta = maxBet - heroBet;
         console.log('Max bet: ', maxBet)
-        const sizings = [0.25, 0.4, 0.33, 0.5, 0.66, 0.75, 1.0, 1.5, 2.0];
+        const sizings = [0.25, 0.33, 0.4, 0.5, 0.66, 0.75, 1.0, 1.5, 2.0];
         return m('#actions',
             m('div', {class: 'flex justify-center space-x-4 mb-4'}, [
                 m(ActionButton, {id: 'btn-fold', onclick: () => act(Action.FOLD, 0, this.valid), txt: 'Fold', k: 'f'}),
