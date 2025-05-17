@@ -5,6 +5,14 @@ import numpy as np
 
 from pokergame import Table, Action, Player, Range
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -165,7 +173,8 @@ class Game:
              'raise': Action.RAISE,
              'fold': Action.FOLD}
 
-        print(hero_name, action, amount)
+        # print(hero_name, action, amount)
+        logger.info('%s %s %s', hero_name, action, amount)
         self.table.act(d[action], hero_name, amount)
 
 

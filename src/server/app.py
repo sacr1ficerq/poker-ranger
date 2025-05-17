@@ -4,6 +4,15 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from game_manager import GameManager
 from typing import List
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
+
 app = Flask(
     __name__,
     static_folder='../client/static/',
@@ -23,7 +32,8 @@ def index():
 @app.route('/table/<table_id>')
 def join_table(table_id):
     if not game_manager.exists(table_id):
-        print(f'{table_id} not found in tables')
+        # print(f'{table_id} not found in tables')
+        logger.info(f'{table_id} not found in tables')
         return redirect(url_for('index'))
     return render_template('table.html', table_id=table_id)
 
@@ -36,15 +46,15 @@ def create_table(data):
         preflop_spot = data['preflopSpot']
         in_position = data['inPosition']
 
-        print(f'spot: {preflop_spot}\t inpos: {in_position}')
-        
+        # print(f'spot: {preflop_spot}\t inpos: {in_position}')
+        logger.info(f'spot: {preflop_spot}\t inpos: {in_position}')
         table = game_manager.create_game(starting_pot, depth, in_position, preflop_spot)
         emit('invite', {
             'tableId': table.id
         })
     except (KeyError, ValueError) as e:
-        print('error:', e)
-
+        # print('error:', e)
+        logger.error('error:', e)
 
 # socketio events
 @socketio.on('requestTables')
@@ -60,17 +70,21 @@ def send_game(data):
     assert table_id, 'no tableId'
 
     if not game_manager.exists(table_id):
-        print(f'{table_id} not found in tables')
+        # print(f'{table_id} not found in tables')
+        logger.info(f'{table_id} not found in tables')
+
         return redirect(url_for('index'))
 
     players: List[dict] = game_manager.get_players(table_id)
     game = game_manager.get_game_data(table_id)
 
-    print('players: ', players)
+    # print('players: ', players)
+    logger.info('players: ', players)
     emit('playersUpdate', players)
 
     game = game_manager.get_game_data(table_id)
-    print('game: ', game)
+    # print('game: ', game)
+    logger.info('game: %s', game)
     emit('gameUpdate', game)
 
 
@@ -105,7 +119,8 @@ def on_join(data):
     assert table_id, 'no tableId'
 
     if not game_manager.exists(table_id):
-        print(f'{table_id} not found in tables')
+        # print(f'{table_id} not found in tables')
+        logger.info(f'{table_id} not found in tables')
         return redirect(url_for('index'))
 
     name = data.get('heroName')
@@ -121,11 +136,13 @@ def on_join(data):
     emit('message', f'{name} has joined the table', room=table_id) # type: ignore[attr-defined]
 
     players = game_manager.get_players(table_id)
-    print('player states:', players)
+    # print('player states:', players)
+    logger.info('player states:', players)
     emit('playersUpdate', players, room=table_id) # type: ignore[attr-defined]
 
     game = game_manager.get_game_data(table_id)
-    print('game: ', game)
+    # print('game: ', game)
+    logger.info('game: ', game)
     emit('gameUpdate', {'game': game})
 
 
@@ -134,7 +151,8 @@ def on_join(data):
 def handle_disconnect():
     player_id = request.sid # type: ignore[attr-defined]
     rooms = game_manager.get_rooms(player_id)
-    print(f"Player disconnecting from rooms: {rooms}")
+    # print(f"Player disconnecting from rooms: {rooms}")
+    logger.info(f"Player disconnecting from rooms: {rooms}")
 
     for game_id in rooms:
         leave_room(room=game_id, sid=player_id)
@@ -195,7 +213,8 @@ def on_action(data):
         assert action, 'no action'
 
     except (KeyError, ValueError) as e:
-        print('error:', e)
+        # print('error:', e)
+        logger.error('error:', e)
         return
 
     game_manager.action(table_id, hero_name, amount, action)
