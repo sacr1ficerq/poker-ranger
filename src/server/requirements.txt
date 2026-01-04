@@ -1,5 +1,5 @@
-Flask                        3.0.3
-Flask-BasicAuth              0.2.0
-Flask-SocketIO               5.5.1
-types-Flask                  1.1.6
-types-Flask-SocketIO         5.5.0.20250321
+flask==3.0.3
+flask_basicauth==0.2.0
+flask_socketio==5.5.1
+types_flask==1.1.6
+types_flask_socketio==5.5.0.20250321
